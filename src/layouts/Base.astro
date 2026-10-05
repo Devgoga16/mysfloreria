@@ -1,0 +1,73 @@
+---
+import "../styles/global.css";
+import "../styles/shop.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import ShopOverlays from "../components/ShopOverlays.astro";
+import { waLink } from "../data/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const {
+  title = "MyS Florería | Arreglos florales y delivery de flores en Lima",
+  description = "MyS Florería: arreglos florales, ramos y regalos hechos a mano con delivery en Lima. Flores para cumpleaños, aniversarios, San Valentín, Día de la Madre y toda ocasión.",
+} = Astro.props;
+---
+<!doctype html>
+<html lang="es-PE">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content="es_PE" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:image" content="/logo-completo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <Header />
+    <main><slot /></main>
+    <Footer />
+    <ShopOverlays />
+
+    <a href={waLink()} target="_blank" rel="noopener" class="wa-float" aria-label="Escríbenos por WhatsApp">
+      <svg viewBox="0 0 32 32"><path fill="currentColor" d="M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3zm0 23.7a10.7 10.7 0 0 1-5.5-1.5l-.4-.2-3.9 1 1-3.8-.3-.4A10.7 10.7 0 1 1 16 26.7zm5.9-8c-.3-.2-1.9-1-2.2-1-.3-.1-.5-.2-.7.2l-1 1.2c-.2.2-.4.2-.7.1a8.8 8.8 0 0 1-4.4-3.8c-.3-.6.3-.5 1-1.7.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.9.4 3.7 3.7 0 0 0-1.1 2.7 6.5 6.5 0 0 0 1.3 3.4 14.7 14.7 0 0 0 5.7 5c2.1.9 2.9 1 4 .8.6-.1 1.9-.8 2.2-1.5.3-.8.3-1.4.2-1.5l-.6-.3z"/></svg>
+    </a>
+
+    <script>
+      // Animación al hacer scroll + contadores
+      const countUp = (el: HTMLElement) => {
+        const to = Number(el.dataset.to);
+        const start = performance.now();
+        const step = (t: number) => {
+          const k = Math.min((t - start) / 1600, 1);
+          el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))).toLocaleString("es-PE");
+          if (k < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      };
+      const io = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            const el = e.target as HTMLElement;
+            el.classList.add("is-visible");
+            if (el.classList.contains("js-count")) countUp(el);
+            el.querySelectorAll<HTMLElement>(".js-count").forEach(countUp);
+            io.unobserve(el);
+          }),
+        { threshold: 0.15 },
+      );
+      document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+      document.querySelectorAll(".js-count").forEach((el) => !el.closest(".reveal") && io.observe(el));
+    </script>
+  </body>
+</html>

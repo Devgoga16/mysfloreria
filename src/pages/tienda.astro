@@ -1,0 +1,138 @@
+---
+import Base from "../layouts/Base.astro";
+import { waLink } from "../data/site";
+---
+<Base
+  title="Tienda | MyS Florería · Ramos y arreglos con delivery en Lima"
+  description="Compra ramos de rosas, tulipanes, girasoles y arreglos florales en línea. Delivery en Lima o recojo en tienda."
+>
+  <section class="shop-hero container">
+    <div class="shop-hero__card">
+      <span class="eyebrow">Tienda en línea</span>
+      <h1 class="display">Encuentra el arreglo perfecto</h1>
+      <p>Elige, agrega al carrito y paga en minutos. Preparamos cada pedido a mano.</p>
+    </div>
+  </section>
+
+  <section class="container shop">
+    <div class="notice" id="offline-notice" hidden>
+      Por el momento no estamos recibiendo pedidos en línea. Puedes ver el catálogo y
+      <a href={waLink()} target="_blank" rel="noopener">pedir por WhatsApp</a>.
+    </div>
+
+    <div class="campaigns" id="campaigns" hidden></div>
+
+    <div class="shop__toolbar">
+      <label class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input type="search" id="q" placeholder="Buscar rosas, girasoles, tulipanes…" aria-label="Buscar" />
+      </label>
+      <div class="shop__selects" id="filters"></div>
+      <select id="sort" aria-label="Ordenar">
+        <option value="">Recomendados</option>
+        <option value="asc">Menor precio</option>
+        <option value="desc">Mayor precio</option>
+      </select>
+    </div>
+    <div class="chips" id="categories" role="tablist" aria-label="Categorías"></div>
+    <p class="shop__count" id="count"></p>
+    <div class="shop__grid" id="grid"></div>
+  </section>
+</Base>
+
+<script>
+  import { getConfig, getCampaigns, minPrice, soles, type Product } from "../lib/utracker";
+  import { loadCatalog, renderProducts, renderSkeleton, renderError, esc } from "../lib/shop";
+
+  const grid = document.getElementById("grid")!;
+  const q = document.getElementById("q") as HTMLInputElement;
+  const sort = document.getElementById("sort") as HTMLSelectElement;
+  const cats = document.getElementById("categories")!;
+  const filtersEl = document.getElementById("filters")!;
+  const count = document.getElementById("count")!;
+
+  let products: Product[] = [];
+  let category = "";
+  const selected: Record<string, string> = {};
+
+  const norm = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+
+  function apply() {
+    const term = norm(q.value.trim());
+    let list = products.filter((p) => {
+      if (category && p.category !== category) return false;
+      if (term && !norm(`${p.name} ${p.description} ${p.category}`).includes(term)) return false;
+      return Object.entries(selected).every(
+        ([fid, val]) => !val || p.attributes.some((a) => a.filter === fid && a.values.includes(val)),
+      );
+    });
+    if (sort.value) list = [...list].sort((a, b) => (minPrice(a) - minPrice(b)) * (sort.value === "asc" ? 1 : -1));
+    else list = [...list].sort((a, b) => Number(b.inStock) - Number(a.inStock));
+    count.textContent = `${list.length} ${list.length === 1 ? "arreglo" : "arreglos"}`;
+    renderProducts(grid, list);
+  }
+
+  function renderCategories(categories: string[]) {
+    cats.innerHTML = ["", ...categories]
+      .map((c) => `<button role="tab" class="chip-btn${c === category ? " is-active" : ""}" data-cat="${esc(c)}">${c ? esc(c) : "Todos"}</button>`)
+      .join("");
+  }
+
+  async function load() {
+    renderSkeleton(grid, 8);
+    try {
+      const [config, data] = await Promise.all([getConfig(), loadCatalog()]);
+      products = data.products;
+      document.getElementById("offline-notice")!.hidden = config.store.acceptsOnlineOrders;
+
+      const used = new Set(products.map((p) => p.category));
+      renderCategories(data.categories.filter((c) => used.has(c)));
+      filtersEl.innerHTML = config.filters
+        .map((f) => `<select data-filter="${esc(f.id)}" aria-label="${esc(f.name)}"><option value="">${esc(f.name)}: todos</option>${f.values.map((v) => `<option value="${esc(v)}"${selected[f.id] === v ? " selected" : ""}>${esc(v)}</option>`).join("")}</select>`)
+        .join("");
+      apply();
+    } catch (err) {
+      renderError(grid, err, load);
+    }
+  }
+
+  async function loadCampaigns() {
+    try {
+      const active = (await getCampaigns()).filter((c) => c.status === "active");
+      if (!active.length) return;
+      const el = document.getElementById("campaigns")!;
+      el.hidden = false;
+      el.innerHTML = active
+        .map(
+          (c) => `<a class="campaign" href="${esc(c.url)}" target="_blank" rel="noopener">
+            ${c.items[0]?.imageUrl ? `<img src="${esc(c.items[0].imageUrl)}" alt="" />` : ""}
+            <div><span class="eyebrow">Por tiempo limitado · hasta el ${new Date(c.endDate).toLocaleDateString("es-PE", { day: "numeric", month: "long" })}</span>
+            <strong class="serif">${esc(c.name)}</strong>
+            <small>${c.items.length} ${c.items.length === 1 ? "producto" : "productos"} desde ${soles(Math.min(...c.items.map((i) => i.price)))}</small></div>
+            <span class="btn__icon">↗</span></a>`,
+        )
+        .join("");
+    } catch {
+      /* las campañas son opcionales */
+    }
+  }
+
+  cats.addEventListener("click", (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-cat]");
+    if (!b) return;
+    category = b.dataset.cat || "";
+    cats.querySelectorAll(".chip-btn").forEach((x) => x.classList.toggle("is-active", x === b));
+    apply();
+  });
+  filtersEl.addEventListener("change", (e) => {
+    const s = e.target as HTMLSelectElement;
+    selected[s.dataset.filter!] = s.value;
+    apply();
+  });
+  q.addEventListener("input", apply);
+  sort.addEventListener("change", apply);
+  document.addEventListener("catalog:refresh", load);
+
+  load();
+  loadCampaigns();
+</script>

@@ -1,0 +1,35 @@
+---
+import Base from "../layouts/Base.astro";
+import { waLink, unsplash } from "../data/site";
+---
+<Base title="¡Gracias por tu pedido! | MyS Florería">
+  <section class="thanks container">
+    <div class="thanks__card">
+      <img src={unsplash("photo-1526047932273-341f2a7631f9", 400)} alt="" class="thanks__img" />
+      <span class="eyebrow">Pedido recibido</span>
+      <h1 class="display">¡Gracias por tu pedido!</h1>
+      <p>Ya estamos preparando tus flores con mucho cariño. Te contactaremos para confirmar la entrega.</p>
+      <div class="thanks__actions">
+        <a id="tracking" class="btn btn--primary" href="#" target="_blank" rel="noopener" hidden>Seguir mi pedido</a>
+        <a href="/tienda" class="btn btn--pill">Seguir comprando <span class="btn__icon">↗</span></a>
+      </div>
+      <p class="thanks__help">¿Alguna duda? <a href={waLink("¡Hola! Acabo de hacer un pedido y tengo una consulta 🌸")} target="_blank" rel="noopener">Escríbenos por WhatsApp</a></p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { cart } from "../lib/cart";
+
+  // Si llegó por redirección (returnUrl), el carrito aún no se vació.
+  cart.clear();
+  try {
+    const url = sessionStorage.getItem("mys-tracking");
+    if (url && /^https:\/\//.test(url)) {
+      const a = document.getElementById("tracking") as HTMLAnchorElement;
+      a.href = url;
+      a.hidden = false;
+      sessionStorage.removeItem("mys-tracking");
+    }
+  } catch {}
+</script>

@@ -1,0 +1,186 @@
+---
+import Base from "../layouts/Base.astro";
+import { waLink, unsplash as u } from "../data/site";
+---
+<Base>
+  <!-- ================= HERO ================= -->
+  <section class="hero container">
+    <div class="hero__card">
+      <div class="hero__side">
+        <a href="#ocasiones" class="hero__demo">
+          <span class="hero__demo-thumb" style={`background-image:url('${u("photo-1526047932273-341f2a7631f9", 160)}')`}></span>
+          <span class="hero__demo-play">▶</span>
+          Ver ocasiones
+        </a>
+        <div class="hero__flower">
+          <img src={u("photo-1525310072745-f49212b5ac6d", 600, 700)} alt="Flor rosada" />
+          <span class="chip">Hecho a mano</span>
+        </div>
+      </div>
+
+      <div class="hero__main">
+        <h1 class="display">
+          Flores que
+          <span class="hero__avatars" aria-hidden="true">
+            <img src={u("photo-1563241527-3004b7be0ffd", 100)} alt="" />
+            <img src={u("photo-1561181286-d3fee7d55364", 100)} alt="" />
+            <span>+</span>
+          </span>
+          dicen lo que sientes
+        </h1>
+        <div class="hero__cta">
+          <p>Cada arreglo está pensado para emocionar y acercar corazones, sin importar la distancia.</p>
+          <span class="divider"></span>
+          <a href="/tienda" class="btn btn--pill">Pide ahora <span class="btn__icon">↗</span></a>
+        </div>
+      </div>
+
+      <div class="hero__feature">
+        <span class="eyebrow">Nueva colección</span>
+        <img src={u("photo-1567696153798-9111f9cd3d0d", 500, 600)} alt="Ramo en papel kraft" />
+        <p class="serif">Hechos con amor</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= NOSOTROS ================= -->
+  <section class="about container" id="nosotros">
+    <div class="stat-card reveal">
+      <span class="eyebrow">Historias de amor</span>
+      <strong class="stat-card__num"><span class="js-count" data-to="5000">0</span>+</strong>
+      <span class="stat-card__label">Clientes felices</span>
+      <img src={u("photo-1519378058457-4c29a0a2efac", 400)} alt="Flores rojas" />
+      <span class="chip chip--bottom">Florería &amp; Ramos</span>
+    </div>
+    <div class="about__photo reveal">
+      <img src={u("photo-1487070183336-b863922373d4", 800, 900)} alt="Nuestra florería" />
+    </div>
+    <div class="about__text reveal">
+      <h2 class="title">Elegidas a mano para esa persona especial</h2>
+      <p>¿Quieres saludar, agradecer o sorprender y no sabes qué regalar? Las flores siempre aciertan. En MyS Florería seleccionamos cada tallo el mismo día de tu pedido.</p>
+      <a href={waLink("¡Hola! Quisiera personalizar un ramo 💐")} target="_blank" rel="noopener" class="btn btn--pill">Personaliza tu ramo <span class="btn__icon">↗</span></a>
+      <img class="about__deco" src={u("photo-1470509037663-253afd7f0f51", 300)} alt="" />
+    </div>
+  </section>
+
+  <!-- ================= DESTACADOS (desde uTracker) ================= -->
+  <section class="catalog container" id="catalogo">
+    <div class="catalog__card">
+      <div class="catalog__head">
+        <h2 class="title title--wine">Pide con confianza</h2>
+        <div class="catalog__actions">
+          <a href="/tienda" class="btn btn--white">Ver toda la tienda</a>
+          <button class="round-btn" data-dir="-1" aria-label="Anterior">←</button>
+          <button class="round-btn round-btn--fill" data-dir="1" aria-label="Siguiente">→</button>
+        </div>
+      </div>
+      <div class="catalog__track" id="destacados"></div>
+    </div>
+  </section>
+
+  <!-- ================= POR QUÉ ================= -->
+  <section class="why container">
+    <div class="why__text reveal">
+      <h2 class="title">¿Por qué un arreglo hecho a mano?</h2>
+      <p>Cada flor guarda un recuerdo: una risa compartida, una mirada cómplice, un amor que se queda para siempre.</p>
+      <a href={waLink("¡Hola! Quisiera un ramo personalizado 🌹")} target="_blank" rel="noopener" class="btn btn--pill">Ramo personalizado <span class="btn__icon">↗</span></a>
+    </div>
+    <div class="why__photo reveal">
+      <img src={u("photo-1582794543139-8ac9cb0f7b11", 700, 900)} alt="Peonías rosadas" />
+      <span class="why__play">▶</span>
+    </div>
+    <figure class="why__quote reveal">
+      <img src={u("photo-1455659817273-f96807779a8a", 160)} alt="" />
+      <span class="why__line"></span>
+      <blockquote>“Llegaron puntualito y más bonitas que en la foto. <strong>Mi mamá lloró</strong> de la emoción.”</blockquote>
+      <figcaption>– Andrea, Surco</figcaption>
+    </figure>
+  </section>
+
+  <!-- ================= OCASIONES ================= -->
+  <section class="moments container" id="ocasiones">
+    <div class="moments__card">
+      <div class="moments__stat">
+        <div class="moments__wine">
+          <p class="serif">Flores que hablan directo al corazón</p>
+          <img src={u("photo-1519378058457-4c29a0a2efac", 400, 300)} alt="" />
+        </div>
+        <strong class="stat-card__num"><span class="js-count" data-to="12000">0</span>+</strong>
+        <span class="stat-card__label">Arreglos entregados</span>
+      </div>
+
+      <div class="moments__body">
+        <h2 class="title">Flores para cada momento que quieres recordar</h2>
+        <div class="moments__grid">
+          <a href="/tienda" class="mini-card">
+            <span class="mini-card__top">Pide ya <span>↗</span></span>
+            <img src={u("photo-1468327768560-75b778cbb551", 400, 300)} alt="Tulipanes" />
+            <span class="serif">Amor a primera vista</span>
+          </a>
+          <div class="promo">
+            <div>
+              <h3 class="serif">Hecho para enamorar</h3>
+              <p>Rosas, tulipanes y peonías para decir “te quiero” como se debe.</p>
+              <a href="/tienda" class="btn btn--pill btn--small">Pide ahora <span class="btn__icon">↗</span></a>
+            </div>
+            <img src={u("photo-1526047932273-341f2a7631f9", 500, 600)} alt="Corazón de flores" />
+          </div>
+        </div>
+        <ul class="tags">
+          <li>Cumpleaños</li><li>Aniversario</li><li>San Valentín</li><li>Día de la Madre</li>
+          <li>Graduación</li><li>Nacimiento</li><li>Condolencias</li><li>Recupérate pronto</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DELIVERY ================= -->
+  <section class="delivery container" id="delivery">
+    <div class="delivery__text reveal">
+      <h2 class="title">Regalar nunca fue tan fácil, con <strong>MyS</strong></h2>
+      <p>Arreglos hechos a mano con delivery a domicilio en Lima Metropolitana.</p>
+      <ul class="checks">
+        <li>Elige tu arreglo y paga en línea en minutos</li>
+        <li>Delivery a domicilio o recojo en tienda</li>
+        <li>Paga con Yape, Plin o transferencia</li>
+      </ul>
+      <a href={waLink("¡Hola! ¿Hacen delivery a mi distrito? 🚚")} target="_blank" rel="noopener" class="btn btn--pill">Consulta tu distrito <span class="btn__icon">↗</span></a>
+    </div>
+    <div class="delivery__circle reveal">
+      <img src={u("photo-1563241527-3004b7be0ffd", 700)} alt="Ramo de flores" />
+      <span class="chip">Ramo especial</span>
+    </div>
+    <div class="delivery__side reveal">
+      <img class="delivery__avatar" src={u("photo-1470509037663-253afd7f0f51", 160)} alt="" />
+      <a href="/tienda" class="link">Ver ramos</a>
+      <p>En MyS cada regalo se siente <strong>personal y único</strong>.</p>
+      <img class="delivery__deco" src={u("photo-1561181286-d3fee7d55364", 300, 400)} alt="" />
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { loadCatalog, renderProducts, renderSkeleton, renderError } from "../lib/shop";
+
+  const track = document.getElementById("destacados")!;
+  async function load() {
+    renderSkeleton(track);
+    try {
+      const { products } = await loadCatalog();
+      // Primero los disponibles; se muestran hasta 8.
+      const sorted = [...products].sort((a, b) => Number(b.inStock) - Number(a.inStock));
+      renderProducts(track, sorted.slice(0, 8));
+    } catch (err) {
+      renderError(track, err, load);
+    }
+  }
+  load();
+  document.addEventListener("catalog:refresh", load);
+
+  document.querySelectorAll<HTMLButtonElement>(".catalog__actions .round-btn").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      const card = track.querySelector<HTMLElement>(".product");
+      if (card) track.scrollBy({ left: Number(btn.dataset.dir) * (card.offsetWidth + 20), behavior: "smooth" });
+    }),
+  );
+</script>

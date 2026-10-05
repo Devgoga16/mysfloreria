@@ -1,0 +1,48 @@
+---
+import { waLink } from "../data/site";
+const cartIcon = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8z"/><path d="M9 11V6a3 3 0 0 1 6 0v5"/></svg>`;
+---
+<header class="header">
+  <nav class="nav container">
+    <button class="nav__toggle" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+    <ul class="nav__links nav__links--left">
+      <li><a href="/tienda">Tienda</a></li>
+      <li><a href="/#ocasiones">Ocasiones</a></li>
+      <li><a href="/#delivery">Delivery</a></li>
+    </ul>
+    <a href="/" class="logo" aria-label="MyS Florería, inicio">
+      <img src="/logo-monograma.png" alt="" class="logo__img" width="240" height="252" />
+      <span class="logo__text">MyS <em>Florería</em></span>
+    </a>
+    <ul class="nav__links nav__links--right">
+      <li><a href="/#nosotros">Nosotros</a></li>
+      <li><a href="/#contacto">Contacto</a></li>
+      <li><a href={waLink("¡Hola! Quisiera un arreglo personalizado 🌷")} target="_blank" rel="noopener" class="btn btn--outline">Pedido personalizado</a></li>
+    </ul>
+    <button class="cart-btn" data-cart-open aria-label="Abrir carrito">
+      <Fragment set:html={cartIcon} />
+      <span class="cart-btn__count js-cart-count" hidden>0</span>
+    </button>
+  </nav>
+  <div class="mobile-menu">
+    <a href="/tienda">Tienda</a>
+    <a href="/#ocasiones">Ocasiones</a>
+    <a href="/#delivery">Delivery</a>
+    <a href="/#nosotros">Nosotros</a>
+    <a href="/#contacto">Contacto</a>
+    <a href={waLink()} target="_blank" rel="noopener" class="btn btn--primary">Pedir por WhatsApp</a>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>(".nav__toggle")!;
+  const menu = document.querySelector(".mobile-menu")!;
+  const set = (open: boolean) => {
+    menu.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+  };
+  toggle.addEventListener("click", () => set(!menu.classList.contains("is-open")));
+  menu.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => set(false)));
+</script>

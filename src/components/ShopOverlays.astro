@@ -1,0 +1,25 @@
+---
+// Carrito lateral, detalle de producto y aviso. Va una vez en el layout.
+---
+<div class="cart-overlay" id="cart-overlay" data-cart-close></div>
+<aside class="cart" id="cart" aria-label="Carrito de compras">
+  <header class="cart__head">
+    <h2 class="serif">Tu carrito</h2>
+    <button class="round-btn" data-cart-close aria-label="Cerrar carrito">✕</button>
+  </header>
+  <p class="cart__msg" role="alert" hidden></p>
+  <ul class="cart__lines"></ul>
+  <div class="cart__foot"></div>
+</aside>
+
+<dialog class="modal" id="product-modal" aria-label="Detalle del producto">
+  <button class="round-btn modal__close" data-modal-close aria-label="Cerrar">✕</button>
+  <div class="modal__body"></div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  import { initShopUI } from "../lib/shop";
+  initShopUI();
+</script>
