@@ -1,12 +1,12 @@
 // ============================================================
-//  Datos generales de MyS Florería — edita aquí y se actualiza
+//  Datos generales de Florería M&S Detalles — edita aquí y se actualiza
 //  en toda la web.
 // ============================================================
 export const site = {
-  nombre: "MyS Florería",
+  nombre: "M&S Detalles",
   // Número de WhatsApp con código de país, sin "+" ni espacios.
   whatsapp: "51999999999",
-  whatsappMensaje: "¡Hola MyS Florería! 🌸 Quisiera información para hacer un pedido.",
+  whatsappMensaje: "¡Hola M&S Detalles! 🌸 Quisiera información para hacer un pedido.",
   telefono: "(01) 999 9999",
   celular: "999 999 999",
   correo: "hola@mysfloreria.pe",

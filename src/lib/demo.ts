@@ -6,8 +6,8 @@ const img = (id: string) => `https://images.unsplash.com/${id}?w=800&h=800&fit=c
 
 export const demoConfig: StoreConfig = {
   store: {
-    name: "MyS Florería",
-    slug: "mys-floreria",
+    name: "M&S Detalles",
+    slug: "m-s-detalles",
     phone: "51999999999",
     schedule: [1, 2, 3, 4, 5, 6].map((day) => ({ day, open: "08:00", close: "20:00" })),
     deliveryTypes: ["pickup", "delivery_own"],
