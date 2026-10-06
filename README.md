@@ -28,7 +28,7 @@ muestra un aviso.
 | WhatsApp, teléfonos, correo, dirección, horario, redes | `src/data/site.ts` |
 | Textos y fotos de la página de inicio | `src/pages/index.astro` |
 | Productos, precios, stock, categorías | **En uTracker** (la web los lee en vivo) |
-| Logo | `public/logomysv2.png` (original) · `logo-monograma.png` (cabecera) · `logo-completo.png` (pie) · `favicon.png` |
+| Logo | `public/logomysv3.png` (original) · `logo-monograma.png` (cabecera) · `logo-completo.png` (pie) · `favicon.png` |
 | Colores y tipografías | `src/styles/global.css` → `:root` |
 
 ## Estructura
