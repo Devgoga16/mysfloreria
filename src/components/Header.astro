@@ -1,47 +1,68 @@
 ---
 import { waLink } from "../data/site";
-const cartIcon = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8z"/><path d="M9 11V6a3 3 0 0 1 6 0v5"/></svg>`;
+import Icon from "./Icon.astro";
 ---
+<div class="topbar">
+  <div class="container">
+    <Icon name="truck" />
+    <span>Delivery a domicilio en Lima · <a href={waLink("¡Hola! ¿Hacen delivery a mi distrito? 🚚")} target="_blank" rel="noopener">Consulta tu distrito</a></span>
+  </div>
+</div>
 <header class="header">
-  <nav class="nav container">
-    <button class="nav__toggle" aria-label="Abrir menú" aria-expanded="false">
+  <nav class="nav container" aria-label="Principal">
+    <button class="nav__toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-movil">
       <span></span><span></span>
     </button>
-    <ul class="nav__links nav__links--left">
+    <ul class="nav__links">
       <li><a href="/tienda">Tienda</a></li>
       <li><a href="/#ocasiones">Ocasiones</a></li>
-      <li><a href="/#delivery">Delivery</a></li>
+      <li><a href="/#como-comprar">Cómo comprar</a></li>
     </ul>
-    <a href="/" class="logo" aria-label="M&amp;S Detalles, inicio">
+    <a href="/" class="logo" aria-label="Florería M&amp;S Detalles, inicio">
+      <span class="logo__word" aria-hidden="true">Florería</span>
       <img src="/logo-monograma.png" alt="" class="logo__img" width="360" height="146" />
+      <span class="logo__divider" aria-hidden="true">
+        <i></i><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10.2A3.8 3.8 0 0 1 12 8.6a3.8 3.8 0 0 1 7 2.2C19 16.6 12 21 12 21z"/></svg><i></i>
+      </span>
+      <span class="logo__word" aria-hidden="true">Detalles</span>
     </a>
-    <ul class="nav__links nav__links--right">
-      <li><a href="/#nosotros">Nosotros</a></li>
-      <li><a href="/#contacto">Contacto</a></li>
-      <li><a href={waLink("¡Hola! Quisiera un arreglo personalizado 🌷")} target="_blank" rel="noopener" class="btn btn--outline">Pedido personalizado</a></li>
-    </ul>
-    <button class="cart-btn" data-cart-open aria-label="Abrir carrito">
-      <Fragment set:html={cartIcon} />
-      <span class="cart-btn__count js-cart-count" hidden>0</span>
-    </button>
+    <div class="nav__end">
+      <ul class="nav__links">
+        <li><a href="/#nosotros">Nosotros</a></li>
+        <li><a href="/#contacto">Contacto</a></li>
+      </ul>
+      <a href={waLink("¡Hola! Quisiera un arreglo personalizado 🌷")} target="_blank" rel="noopener" class="btn btn--outline btn--small">Pedido personalizado</a>
+      <button class="cart-btn" data-cart-open aria-label="Abrir carrito">
+        <Icon name="bag" />
+        <span class="cart-btn__count js-cart-count" hidden>0</span>
+      </button>
+    </div>
   </nav>
-  <div class="mobile-menu">
+  <div class="mobile-menu" id="menu-movil">
     <a href="/tienda">Tienda</a>
     <a href="/#ocasiones">Ocasiones</a>
-    <a href="/#delivery">Delivery</a>
+    <a href="/#como-comprar">Cómo comprar</a>
     <a href="/#nosotros">Nosotros</a>
     <a href="/#contacto">Contacto</a>
-    <a href={waLink()} target="_blank" rel="noopener" class="btn btn--primary">Pedir por WhatsApp</a>
+    <a href={waLink()} target="_blank" rel="noopener" class="btn btn--primary btn--lg">Pedir por WhatsApp</a>
   </div>
 </header>
 
 <script>
+  const header = document.querySelector<HTMLElement>(".header")!;
   const toggle = document.querySelector<HTMLButtonElement>(".nav__toggle")!;
   const menu = document.querySelector(".mobile-menu")!;
   const set = (open: boolean) => {
     menu.classList.toggle("is-open", open);
     toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
   };
   toggle.addEventListener("click", () => set(!menu.classList.contains("is-open")));
   menu.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => set(false)));
+  document.addEventListener("keydown", (e) => e.key === "Escape" && set(false));
+
+  // Línea y sombra en la cabecera al bajar
+  const onScroll = () => header.classList.toggle("is-scrolled", window.scrollY > 8);
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
 </script>

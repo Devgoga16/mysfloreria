@@ -34,36 +34,52 @@ function badges(p: Product) {
   return out.length ? `<div class="badges">${out.join("")}</div>` : "";
 }
 
+const svg = (d: string) =>
+  `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+const ICON_PLUS = svg(`<path d="M12 5v14M5 12h14"/>`);
+const ICON_OPTIONS = svg(`<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>`);
+const ICON_CHAT = svg(`<path d="M20 11.5a8 8 0 0 1-11.7 7.1L4 20l1.4-4.1A8 8 0 1 1 20 11.5z"/>`);
+
 export function productCard(p: Product) {
+  const id = esc(p.id);
+  const action =
+    !canBuy || !p.inStock
+      ? `<a class="product__quick" href="${waLink(`¡Hola! Me interesa "${p.name}" 🌸`)}" target="_blank" rel="noopener" aria-label="Consultar ${esc(p.name)} por WhatsApp">${ICON_CHAT}<span>Consultar</span></a>`
+      : p.variants.length > 1
+        ? `<button class="product__quick" data-open="${id}" aria-label="Elegir opción de ${esc(p.name)}">${ICON_OPTIONS}<span>Elegir</span></button>`
+        : `<button class="product__quick" data-add="${id}" aria-label="Agregar ${esc(p.name)} al carrito">${ICON_PLUS}<span>Agregar</span></button>`;
   return `
     <article class="product${p.inStock ? "" : " is-out"}">
-      <button class="product__open" data-open="${esc(p.id)}" aria-label="Ver ${esc(p.name)}">
-        <div class="product__img">
-          <img src="${esc(p.images[0] ?? "/logo-completo.png")}" alt="${esc(p.name)}" loading="lazy" />
-          ${badges(p)}
-        </div>
+      <div class="product__media">
+        <button class="product__img" data-open="${id}" tabindex="-1" aria-hidden="true">
+          <img src="${esc(p.images[0] ?? "/logo-completo.png")}" alt="" loading="lazy" decoding="async" />
+        </button>
+        ${badges(p)}
+        ${action}
+      </div>
+      <button class="product__info" data-open="${id}">
+        <span class="product__cat">${esc(p.category)}</span>
         <h3>${esc(p.name)}</h3>
-        <p class="product__detail">${esc(p.category)}</p>
-        <p class="product__price">${priceLabel(p)}</p>
+        <span class="product__price">${priceLabel(p)}</span>
       </button>
-      ${
-        !canBuy || !p.inStock
-          ? `<a class="product__buy" href="${waLink(`¡Hola! Me interesa "${p.name}" 🌸`)}" target="_blank" rel="noopener">Consultar por WhatsApp ›</a>`
-          : p.variants.length > 1
-            ? `<button class="product__buy" data-open="${esc(p.id)}">Elegir opción ›</button>`
-            : `<button class="product__buy" data-add="${esc(p.id)}">Agregar al carrito ›</button>`
-      }
     </article>`;
 }
 
 export function renderProducts(el: HTMLElement, products: Product[]) {
   el.innerHTML = products.length
     ? products.map(productCard).join("")
-    : `<p class="empty">No encontramos arreglos con esos filtros.</p>`;
+    : `<div class="empty">
+         <p class="serif">No encontramos arreglos con esos filtros</p>
+         <p>Prueba con otra categoría, o cuéntanos qué buscas y lo armamos para ti.</p>
+         <div class="empty__actions">
+           <button class="btn btn--ghost" data-reset>Ver todos los arreglos</button>
+           <a class="btn btn--primary" href="${waLink("¡Hola! Estoy buscando un arreglo especial 🌸")}" target="_blank" rel="noopener">Escríbenos</a>
+         </div>
+       </div>`;
 }
 
 export function renderSkeleton(el: HTMLElement, n = 4) {
-  el.innerHTML = Array.from({ length: n }, () => `<div class="product product--skeleton"><div class="product__img"></div><span></span><span></span></div>`).join("");
+  el.innerHTML = Array.from({ length: n }, () => `<div class="product product--skeleton" aria-hidden="true"><div class="product__media"></div><span></span><span></span></div>`).join("");
 }
 
 export function renderError(el: HTMLElement, err: unknown, retry: () => void) {
@@ -93,6 +109,16 @@ function addToCart(p: Product, variant: string | undefined, quantity: number) {
     quantity,
   });
   toast(ok ? `“${p.name}” se agregó al carrito` : "Llegaste al máximo de 50 productos distintos por pedido.");
+  if (ok) bumpCartButton();
+}
+
+/** Pequeño rebote del ícono del carrito para confirmar que se agregó. */
+function bumpCartButton() {
+  document.querySelectorAll<HTMLElement>(".cart-btn").forEach((b) => {
+    b.classList.remove("is-bumped");
+    void b.offsetWidth; // reinicia la animación si se agrega varias veces seguidas
+    b.classList.add("is-bumped");
+  });
 }
 
 // ---------- Detalle (modal) ----------
@@ -287,15 +313,25 @@ function backToCart() {
   renderCart();
 }
 
+let lastFocus: HTMLElement | null = null;
+
 export function openCart() {
-  $("#cart").classList.add("is-open");
+  const panel = $("#cart");
+  if (panel.classList.contains("is-open")) return;
+  lastFocus = document.activeElement as HTMLElement | null;
+  panel.classList.add("is-open");
   $("#cart-overlay").classList.add("is-open");
   document.body.classList.add("no-scroll");
+  // foco dentro del panel para teclado y lectores de pantalla
+  requestAnimationFrame(() => $<HTMLButtonElement>("#cart [data-cart-close]").focus({ preventScroll: true }));
 }
 function closeCart() {
-  $("#cart").classList.remove("is-open");
+  const panel = $("#cart");
+  if (!panel.classList.contains("is-open")) return;
+  panel.classList.remove("is-open");
   $("#cart-overlay").classList.remove("is-open");
   document.body.classList.remove("no-scroll");
+  lastFocus?.focus({ preventScroll: true });
 }
 
 // ---------- Inicio (una vez por página) ----------

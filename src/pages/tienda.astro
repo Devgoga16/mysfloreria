@@ -6,11 +6,11 @@ import { waLink } from "../data/site";
   title="Tienda | M&S Detalles · Ramos y arreglos con delivery en Lima"
   description="Compra ramos de rosas, tulipanes, girasoles y arreglos florales en línea. Delivery en Lima o recojo en tienda."
 >
-  <section class="shop-hero container">
-    <div class="shop-hero__card">
-      <span class="eyebrow">Tienda en línea</span>
-      <h1 class="display">Encuentra el arreglo perfecto</h1>
-      <p>Elige, agrega al carrito y paga en minutos. Preparamos cada pedido a mano.</p>
+  <section class="shop-hero">
+    <div class="container">
+      <span class="eyebrow eyebrow--line">Tienda en línea</span>
+      <h1 class="display">Encuentra el arreglo <em>perfecto</em></h1>
+      <p class="lead">Elige, agrega al carrito y paga en minutos. Preparamos cada pedido a mano, con todo el cariño.</p>
     </div>
   </section>
 
@@ -54,6 +54,8 @@ import { waLink } from "../data/site";
   let products: Product[] = [];
   let category = "";
   const selected: Record<string, string> = {};
+  // Viene de "Compra por ocasión": ?ocasion=Cumpleaños
+  let pendingOcasion = new URLSearchParams(location.search).get("ocasion") ?? "";
 
   const norm = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 
@@ -87,6 +89,16 @@ import { waLink } from "../data/site";
 
       const used = new Set(products.map((p) => p.category));
       renderCategories(data.categories.filter((c) => used.has(c)));
+      // Si la ocasión coincide con un valor de algún filtro, se usa ese filtro; si no, se busca por texto.
+      if (pendingOcasion) {
+        const target = norm(pendingOcasion);
+        const match = config.filters
+          .flatMap((f) => f.values.map((v) => ({ f, v })))
+          .find(({ v }) => norm(v) === target);
+        if (match) selected[match.f.id] = match.v;
+        else q.value = pendingOcasion;
+        pendingOcasion = "";
+      }
       filtersEl.innerHTML = config.filters
         .map((f) => `<select data-filter="${esc(f.id)}" aria-label="${esc(f.name)}"><option value="">${esc(f.name)}: todos</option>${f.values.map((v) => `<option value="${esc(v)}"${selected[f.id] === v ? " selected" : ""}>${esc(v)}</option>`).join("")}</select>`)
         .join("");
@@ -109,7 +121,7 @@ import { waLink } from "../data/site";
             <div><span class="eyebrow">Por tiempo limitado · hasta el ${new Date(c.endDate).toLocaleDateString("es-PE", { day: "numeric", month: "long" })}</span>
             <strong class="serif">${esc(c.name)}</strong>
             <small>${c.items.length} ${c.items.length === 1 ? "producto" : "productos"} desde ${soles(Math.min(...c.items.map((i) => i.price)))}</small></div>
-            <span class="btn__icon">↗</span></a>`,
+            <span class="btn__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>`,
         )
         .join("");
     } catch {
@@ -127,6 +139,17 @@ import { waLink } from "../data/site";
   filtersEl.addEventListener("change", (e) => {
     const s = e.target as HTMLSelectElement;
     selected[s.dataset.filter!] = s.value;
+    apply();
+  });
+  grid.addEventListener("click", (e) => {
+    if (!(e.target as HTMLElement).closest("[data-reset]")) return;
+    category = "";
+    q.value = "";
+    sort.value = "";
+    Object.keys(selected).forEach((k) => (selected[k] = ""));
+    filtersEl.querySelectorAll("select").forEach((s) => (s.value = ""));
+    cats.querySelectorAll(".chip-btn").forEach((x, i) => x.classList.toggle("is-active", i === 0));
+    history.replaceState(null, "", location.pathname);
     apply();
   });
   q.addEventListener("input", apply);

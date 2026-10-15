@@ -2,7 +2,7 @@
 // Se usan solo cuando no hay PUBLIC_UTRACKER_KEY configurada.
 import type { Product, StoreConfig, Campaign } from "./utracker";
 
-const img = (id: string) => `https://images.unsplash.com/${id}?w=800&h=800&fit=crop`;
+const img = (id: string) => `https://images.unsplash.com/${id}?w=700&h=700&fit=crop&auto=format&q=75`;
 
 export const demoConfig: StoreConfig = {
   store: {

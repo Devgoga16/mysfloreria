@@ -1,13 +1,13 @@
 ---
 import Base from "../layouts/Base.astro";
-import { waLink, unsplash } from "../data/site";
+import { waLink } from "../data/site";
 ---
 <Base title="¡Gracias por tu pedido! | M&S Detalles">
   <section class="thanks container">
     <div class="thanks__card">
-      <img src={unsplash("photo-1526047932273-341f2a7631f9", 400)} alt="" class="thanks__img" />
+      <img src="/logo-completo.png" alt="" class="thanks__img" width="480" height="480" />
       <span class="eyebrow">Pedido recibido</span>
-      <h1 class="display">¡Gracias por tu pedido!</h1>
+      <h1 class="display">¡Gracias por <em>tu pedido!</em></h1>
       <p>Ya estamos preparando tus flores con mucho cariño. Te contactaremos para confirmar la entrega.</p>
       <div class="thanks__actions">
         <a id="tracking" class="btn btn--primary" href="#" target="_blank" rel="noopener" hidden>Seguir mi pedido</a>

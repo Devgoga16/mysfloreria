@@ -14,23 +14,32 @@ const {
   title = "M&S Detalles | Florería con arreglos florales y delivery en Lima",
   description = "Florería M&S Detalles: arreglos florales, ramos y regalos hechos a mano con delivery en Lima. Flores para cumpleaños, aniversarios, San Valentín, Día de la Madre y toda ocasión.",
 } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL("/logo-completo.png", Astro.site);
 ---
 <!doctype html>
 <html lang="es-PE">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+    <meta name="theme-color" content="#4b2632" />
+    <meta name="color-scheme" content="light" />
+    <script is:inline>document.documentElement.classList.add("js")</script>
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:locale" content="es_PE" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Florería M&S Detalles" />
+    <meta property="og:url" content={canonical} />
+    <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <meta property="og:image" content="/logo-completo.png" />
+    <meta property="og:image" content={ogImage} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500&family=Jost:wght@400;500&display=swap" rel="stylesheet" />
   </head>
   <body>
     <Header />
@@ -43,31 +52,17 @@ const {
     </a>
 
     <script>
-      // Animación al hacer scroll + contadores
-      const countUp = (el: HTMLElement) => {
-        const to = Number(el.dataset.to);
-        const start = performance.now();
-        const step = (t: number) => {
-          const k = Math.min((t - start) / 1600, 1);
-          el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))).toLocaleString("es-PE");
-          if (k < 1) requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
-      };
+      // Aparición suave de las secciones al hacer scroll
       const io = new IntersectionObserver(
         (entries) =>
           entries.forEach((e) => {
             if (!e.isIntersecting) return;
-            const el = e.target as HTMLElement;
-            el.classList.add("is-visible");
-            if (el.classList.contains("js-count")) countUp(el);
-            el.querySelectorAll<HTMLElement>(".js-count").forEach(countUp);
-            io.unobserve(el);
+            e.target.classList.add("is-visible");
+            io.unobserve(e.target);
           }),
-        { threshold: 0.15 },
+        { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
       );
       document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
-      document.querySelectorAll(".js-count").forEach((el) => !el.closest(".reveal") && io.observe(el));
     </script>
   </body>
 </html>

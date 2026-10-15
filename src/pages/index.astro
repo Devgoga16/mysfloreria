@@ -1,160 +1,216 @@
 ---
 import Base from "../layouts/Base.astro";
-import { waLink, unsplash as u } from "../data/site";
+import { Image } from "astro:assets";
+import Icon from "../components/Icon.astro";
+import { site, waLink, unsplash as u } from "../data/site";
+
+// Ocasiones: enlazan a la tienda filtrada
+const ocasiones = [
+  { nombre: "Amor", img: "photo-1494972308805-463bc619d34e" },
+  { nombre: "Cumpleaños", img: "photo-1567696153798-9111f9cd3d0d" },
+  { nombre: "Aniversario", img: "photo-1591886960571-74d43a9d4166" },
+  { nombre: "Agradecimiento", img: "photo-1561181286-d3fee7d55364" },
+  { nombre: "Nacimiento", img: "photo-1525310072745-f49212b5ac6d" },
+  { nombre: "Condolencias", img: "photo-1606041008023-472dfb5e530f" },
+];
+
+const pasos = [
+  { icon: "flower", titulo: "Elige tu arreglo", texto: "Explora la tienda y escoge el ramo, el tamaño y la cantidad que quieras regalar." },
+  { icon: "card", titulo: "Paga en línea", texto: "Indica la fecha y el lugar de entrega, y paga en una ventana segura en pocos minutos." },
+  { icon: "truck", titulo: "Lo llevamos por ti", texto: "Preparamos tu pedido a mano y lo entregamos en Lima, o lo recoges en tienda." },
+] as const;
+
+const valores = [
+  { icon: "hand", titulo: "Hecho a mano", texto: "Cada arreglo se arma a mano, uno por uno." },
+  { icon: "palette", titulo: "A tu medida", texto: "Elegimos contigo colores, flores y estilo." },
+  { icon: "gift", titulo: "Detalles que suman", texto: "Envolturas y acabados cuidados al detalle." },
+  { icon: "chat", titulo: "Atención cercana", texto: "Te acompañamos por WhatsApp de principio a fin." },
+] as const;
+
+// Galería de Instagram: pega tus fotos en src/assets/galeria/ (jpg, png o webp).
+// Se muestran las 6 primeras ordenadas por nombre (1.jpg, 2.jpg, … 10.jpg).
+// Las fotos .jfif son JPG: basta cambiarles la extensión a .jpg.
+// Mientras la carpeta esté vacía se usan las fotos de ejemplo de abajo.
+const fotosPropias = Object.entries(
+  import.meta.glob<{ default: ImageMetadata }>("../assets/galeria/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}", { eager: true }),
+)
+  .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
+  .map(([, m]) => m.default)
+  .slice(0, 6);
+
+const galeriaEjemplo = [
+  "photo-1526047932273-341f2a7631f9",
+  "photo-1563241527-3004b7be0ffd",
+  "photo-1457089328109-e5d9bd499191",
+  "photo-1582794543139-8ac9cb0f7b11",
+  "photo-1468327768560-75b778cbb551",
+  "photo-1519378058457-4c29a0a2efac",
+];
 ---
 <Base>
   <!-- ================= HERO ================= -->
-  <section class="hero container">
-    <div class="hero__card">
-      <div class="hero__side">
-        <a href="#ocasiones" class="hero__demo">
-          <span class="hero__demo-thumb" style={`background-image:url('${u("photo-1526047932273-341f2a7631f9", 160)}')`}></span>
-          <span class="hero__demo-play">▶</span>
-          Ver ocasiones
-        </a>
-        <div class="hero__flower">
-          <img src={u("photo-1525310072745-f49212b5ac6d", 600, 700)} alt="Flor rosada" />
-          <span class="chip">Hecho a mano</span>
+  <section class="hero">
+    <div class="container hero__grid">
+      <div class="hero__copy">
+        <span class="eyebrow eyebrow--line">Florería en Lima</span>
+        <h1 class="display">Flores que dicen <em>lo que sientes</em></h1>
+        <p class="lead">Ramos y arreglos hechos a mano para cumpleaños, aniversarios y todos esos momentos que merecen un detalle especial.</p>
+        <div class="hero__actions">
+          <a href="/tienda" class="btn btn--primary btn--lg">Ver la tienda <Icon name="arrow" /></a>
+          <a href={waLink("¡Hola! Quisiera un arreglo personalizado 🌷")} target="_blank" rel="noopener" class="btn btn--ghost btn--lg">Pedido personalizado</a>
         </div>
+        <ul class="perks">
+          <li><Icon name="hand" />Hecho a mano</li>
+          <li><Icon name="truck" />Delivery en Lima</li>
+          <li><Icon name="wallet" />Yape, Plin y transferencia</li>
+        </ul>
       </div>
 
-      <div class="hero__main">
-        <h1 class="display">
-          Flores que
-          <span class="hero__avatars" aria-hidden="true">
-            <img src={u("photo-1563241527-3004b7be0ffd", 100)} alt="" />
-            <img src={u("photo-1561181286-d3fee7d55364", 100)} alt="" />
-            <span>+</span>
-          </span>
-          dicen lo que sientes
-        </h1>
-        <div class="hero__cta">
-          <p>Cada arreglo está pensado para emocionar y acercar corazones, sin importar la distancia.</p>
-          <span class="divider"></span>
-          <a href="/tienda" class="btn btn--pill">Pide ahora <span class="btn__icon">↗</span></a>
+      <div class="hero__art" aria-hidden="true">
+        <div class="hero__arch">
+          <img src={u("photo-1563241527-3004b7be0ffd", 760, 1060)} alt="" width="760" height="1060" fetchpriority="high" />
         </div>
-      </div>
-
-      <div class="hero__feature">
-        <span class="eyebrow">Nueva colección</span>
-        <img src={u("photo-1567696153798-9111f9cd3d0d", 500, 600)} alt="Ramo en papel kraft" />
-        <p class="serif">Hechos con amor</p>
+        <img class="hero__small hero__small--1" src={u("photo-1561181286-d3fee7d55364", 360)} alt="" width="360" height="360" />
+        <img class="hero__small hero__small--2" src={u("photo-1582794543139-8ac9cb0f7b11", 360, 450)} alt="" width="360" height="450" />
+        <div class="hero__note">
+          <img src="/logo-monograma.png" alt="" width="360" height="146" />
+          <div>
+            <strong>Pétalo a pétalo</strong>
+            <span>Diseños únicos para cada historia</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ================= NOSOTROS ================= -->
-  <section class="about container" id="nosotros">
-    <div class="stat-card reveal">
-      <span class="eyebrow">Historias de amor</span>
-      <strong class="stat-card__num"><span class="js-count" data-to="5000">0</span>+</strong>
-      <span class="stat-card__label">Clientes felices</span>
-      <img src={u("photo-1519378058457-4c29a0a2efac", 400)} alt="Flores rojas" />
-      <span class="chip chip--bottom">Florería &amp; Ramos</span>
+  <!-- ================= OCASIONES ================= -->
+  <section class="section container section--flush-top" id="ocasiones">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow eyebrow--line">Para cada momento</span>
+        <h2 class="title">Compra por <em>ocasión</em></h2>
+      </div>
+      <a href="/tienda" class="link">Ver todos los arreglos <Icon name="arrow" /></a>
     </div>
-    <div class="about__photo reveal">
-      <img src={u("photo-1487070183336-b863922373d4", 800, 900)} alt="Nuestra florería" />
-    </div>
-    <div class="about__text reveal">
-      <h2 class="title">Elegidas a mano para esa persona especial</h2>
-      <p>¿Quieres saludar, agradecer o sorprender y no sabes qué regalar? Las flores siempre aciertan. En M&amp;S Detalles seleccionamos cada tallo el mismo día de tu pedido.</p>
-      <a href={waLink("¡Hola! Quisiera personalizar un ramo 💐")} target="_blank" rel="noopener" class="btn btn--pill">Personaliza tu ramo <span class="btn__icon">↗</span></a>
-      <img class="about__deco" src={u("photo-1470509037663-253afd7f0f51", 300)} alt="" />
-    </div>
+    <ul class="occasions__list reveal reveal--d1">
+      {ocasiones.map((o) => (
+        <li>
+          <a class="occasion" href={`/tienda?ocasion=${encodeURIComponent(o.nombre)}`}>
+            <span class="occasion__img"><img src={u(o.img, 320)} alt="" width="320" height="320" loading="lazy" decoding="async" /></span>
+            <span class="occasion__name">{o.nombre}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
   </section>
 
   <!-- ================= DESTACADOS (desde uTracker) ================= -->
-  <section class="catalog container" id="catalogo">
-    <div class="catalog__card">
-      <div class="catalog__head">
-        <h2 class="title title--wine">Pide con confianza</h2>
-        <div class="catalog__actions">
-          <a href="/tienda" class="btn btn--white">Ver toda la tienda</a>
-          <button class="round-btn" data-dir="-1" aria-label="Anterior">←</button>
-          <button class="round-btn round-btn--fill" data-dir="1" aria-label="Siguiente">→</button>
+  <section class="container" id="catalogo">
+    <div class="featured reveal">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow eyebrow--line">Favoritos</span>
+          <h2 class="title">Los más <em>pedidos</em></h2>
+        </div>
+        <div class="featured__actions">
+          <a href="/tienda" class="link">Ver toda la tienda <Icon name="arrow" /></a>
+          <button class="round-btn" data-dir="-1" aria-label="Anterior"><Icon name="arrow-left" /></button>
+          <button class="round-btn round-btn--fill" data-dir="1" aria-label="Siguiente"><Icon name="arrow" /></button>
         </div>
       </div>
       <div class="catalog__track" id="destacados"></div>
     </div>
   </section>
 
-  <!-- ================= POR QUÉ ================= -->
-  <section class="why container">
-    <div class="why__text reveal">
-      <h2 class="title">¿Por qué un arreglo hecho a mano?</h2>
-      <p>Cada flor guarda un recuerdo: una risa compartida, una mirada cómplice, un amor que se queda para siempre.</p>
-      <a href={waLink("¡Hola! Quisiera un ramo personalizado 🌹")} target="_blank" rel="noopener" class="btn btn--pill">Ramo personalizado <span class="btn__icon">↗</span></a>
-    </div>
-    <div class="why__photo reveal">
-      <img src={u("photo-1582794543139-8ac9cb0f7b11", 700, 900)} alt="Peonías rosadas" />
-      <span class="why__play">▶</span>
-    </div>
-    <figure class="why__quote reveal">
-      <img src={u("photo-1455659817273-f96807779a8a", 160)} alt="" />
-      <span class="why__line"></span>
-      <blockquote>“Llegaron puntualito y más bonitas que en la foto. <strong>Mi mamá lloró</strong> de la emoción.”</blockquote>
-      <figcaption>– Andrea, Surco</figcaption>
-    </figure>
-  </section>
-
-  <!-- ================= OCASIONES ================= -->
-  <section class="moments container" id="ocasiones">
-    <div class="moments__card">
-      <div class="moments__stat">
-        <div class="moments__wine">
-          <p class="serif">Flores que hablan directo al corazón</p>
-          <img src={u("photo-1519378058457-4c29a0a2efac", 400, 300)} alt="" />
-        </div>
-        <strong class="stat-card__num"><span class="js-count" data-to="12000">0</span>+</strong>
-        <span class="stat-card__label">Arreglos entregados</span>
-      </div>
-
-      <div class="moments__body">
-        <h2 class="title">Flores para cada momento que quieres recordar</h2>
-        <div class="moments__grid">
-          <a href="/tienda" class="mini-card">
-            <span class="mini-card__top">Pide ya <span>↗</span></span>
-            <img src={u("photo-1468327768560-75b778cbb551", 400, 300)} alt="Tulipanes" />
-            <span class="serif">Amor a primera vista</span>
-          </a>
-          <div class="promo">
-            <div>
-              <h3 class="serif">Hecho para enamorar</h3>
-              <p>Rosas, tulipanes y peonías para decir “te quiero” como se debe.</p>
-              <a href="/tienda" class="btn btn--pill btn--small">Pide ahora <span class="btn__icon">↗</span></a>
-            </div>
-            <img src={u("photo-1526047932273-341f2a7631f9", 500, 600)} alt="Corazón de flores" />
-          </div>
-        </div>
-        <ul class="tags">
-          <li>Cumpleaños</li><li>Aniversario</li><li>San Valentín</li><li>Día de la Madre</li>
-          <li>Graduación</li><li>Nacimiento</li><li>Condolencias</li><li>Recupérate pronto</li>
-        </ul>
+  <!-- ================= CÓMO COMPRAR ================= -->
+  <section class="section container" id="como-comprar">
+    <div class="section-head section-head--center reveal">
+      <div>
+        <span class="eyebrow">Fácil y rápido</span>
+        <h2 class="title">Así de simple es <em>regalar</em></h2>
       </div>
     </div>
+    <ol class="steps">
+      {pasos.map((p, i) => (
+        <li class={`step reveal reveal--d${i + 1}`}>
+          <span class="step__icon"><Icon name={p.icon} /></span>
+          <span class="step__num">0{i + 1}</span>
+          <h3>{p.titulo}</h3>
+          <p>{p.texto}</p>
+        </li>
+      ))}
+    </ol>
   </section>
 
-  <!-- ================= DELIVERY ================= -->
-  <section class="delivery container" id="delivery">
-    <div class="delivery__text reveal">
-      <h2 class="title">Regalar nunca fue tan fácil, con <strong>M&amp;S</strong></h2>
-      <p>Arreglos hechos a mano con delivery a domicilio en Lima Metropolitana.</p>
-      <ul class="checks">
-        <li>Elige tu arreglo y paga en línea en minutos</li>
-        <li>Delivery a domicilio o recojo en tienda</li>
-        <li>Paga con Yape, Plin o transferencia</li>
+  <!-- ================= HISTORIA ================= -->
+  <section class="container story" id="nosotros">
+    <div class="story__media reveal">
+      <img class="story__main" src={u("photo-1487070183336-b863922373d4", 760, 950)} alt="Interior de la florería con arreglos" width="760" height="950" loading="lazy" decoding="async" />
+      <img class="story__small" src={u("photo-1455659817273-f96807779a8a", 400)} alt="" width="400" height="400" loading="lazy" decoding="async" />
+      <span class="story__seal"><img src="/logo-completo.png" alt="" width="480" height="480" loading="lazy" /></span>
+    </div>
+    <div class="story__copy reveal reveal--d1">
+      <span class="eyebrow eyebrow--line">Nuestra historia</span>
+      <h2 class="title">Detalles hechos a mano, con <em>mucho cariño</em></h2>
+      <p>En M&amp;S Detalles creemos que un arreglo floral es mucho más que flores: es una forma de decir “te quiero”, “gracias” o “aquí estoy”. Por eso diseñamos cada pedido pensando en la persona que lo va a recibir.</p>
+      <ul class="values">
+        {valores.map((v) => (
+          <li>
+            <span class="icon-wrap"><Icon name={v.icon} /></span>
+            <div><strong>{v.titulo}</strong><span>{v.texto}</span></div>
+          </li>
+        ))}
       </ul>
-      <a href={waLink("¡Hola! ¿Hacen delivery a mi distrito? 🚚")} target="_blank" rel="noopener" class="btn btn--pill">Consulta tu distrito <span class="btn__icon">↗</span></a>
+      <a href="/tienda" class="btn btn--primary btn--lg">Descubre los arreglos <Icon name="arrow" /></a>
     </div>
-    <div class="delivery__circle reveal">
-      <img src={u("photo-1563241527-3004b7be0ffd", 700)} alt="Ramo de flores" />
-      <span class="chip">Ramo especial</span>
+  </section>
+
+  <!-- ================= PEDIDO PERSONALIZADO ================= -->
+  <section class="section container" id="personalizado">
+    <div class="custom reveal">
+      <div class="custom__copy">
+        <span class="eyebrow eyebrow--line">Pedido personalizado</span>
+        <h2 class="title">¿Tienes una idea <em>en mente?</em></h2>
+        <p>Cuéntanos la ocasión, los colores que le gustan y tu presupuesto. Diseñamos el arreglo contigo, paso a paso.</p>
+        <a href={waLink("¡Hola! Quisiera diseñar un arreglo personalizado 🌷")} target="_blank" rel="noopener" class="btn btn--white btn--lg"><Icon name="chat" /> Escríbenos por WhatsApp</a>
+      </div>
+      <div class="custom__media">
+        <img src={u("photo-1457089328109-e5d9bd499191", 800, 800)} alt="Arreglo de rosas y flores de temporada" width="800" height="800" loading="lazy" decoding="async" />
+      </div>
     </div>
-    <div class="delivery__side reveal">
-      <img class="delivery__avatar" src={u("photo-1470509037663-253afd7f0f51", 160)} alt="" />
-      <a href="/tienda" class="link">Ver ramos</a>
-      <p>En M&amp;S cada regalo se siente <strong>personal y único</strong>.</p>
-      <img class="delivery__deco" src={u("photo-1561181286-d3fee7d55364", 300, 400)} alt="" />
+  </section>
+
+  <!-- ================= ENTREGAS Y PAGOS ================= -->
+  <section class="container" id="entregas">
+    <ul class="info reveal">
+      <li><Icon name="truck" /><strong>Delivery en Lima</strong><span>Llevamos tu pedido a domicilio en Lima Metropolitana.</span></li>
+      <li><Icon name="store" /><strong>Recojo en tienda</strong><span>Si prefieres, recógelo tú mismo en el día y la hora que elijas.</span></li>
+      <li><Icon name="wallet" /><strong>Pagos fáciles</strong><span>Yape, Plin o transferencia, en una ventana de pago segura.</span></li>
+      <li><Icon name="calendar" /><strong>Programa tu fecha</strong><span>Elige el día de entrega al momento de pagar.</span></li>
+    </ul>
+  </section>
+
+  <!-- ================= GALERÍA ================= -->
+  <section class="section container">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow eyebrow--line">Síguenos</span>
+        <h2 class="title">Inspiración en <em>Instagram</em></h2>
+      </div>
+      <a href={site.redes.instagram} target="_blank" rel="noopener" class="link"><Icon name="instagram" /> Ver Instagram</a>
+    </div>
+    <div class="gallery reveal reveal--d1" style={`--cols: ${fotosPropias.length || galeriaEjemplo.length}`}>
+      {fotosPropias.length
+        ? fotosPropias.map((foto) => (
+            <a href={site.redes.instagram} target="_blank" rel="noopener" aria-label="Ver en Instagram">
+              <Image src={foto} alt="" width={600} loading="lazy" decoding="async" />
+            </a>
+          ))
+        : galeriaEjemplo.map((g) => (
+            <a href={site.redes.instagram} target="_blank" rel="noopener" aria-label="Ver en Instagram">
+              <img src={u(g, 400)} alt="" width="400" height="400" loading="lazy" decoding="async" />
+            </a>
+          ))}
     </div>
   </section>
 </Base>
@@ -177,10 +233,10 @@ import { waLink, unsplash as u } from "../data/site";
   load();
   document.addEventListener("catalog:refresh", load);
 
-  document.querySelectorAll<HTMLButtonElement>(".catalog__actions .round-btn").forEach((btn) =>
+  document.querySelectorAll<HTMLButtonElement>(".featured__actions .round-btn").forEach((btn) =>
     btn.addEventListener("click", () => {
       const card = track.querySelector<HTMLElement>(".product");
-      if (card) track.scrollBy({ left: Number(btn.dataset.dir) * (card.offsetWidth + 20), behavior: "smooth" });
+      if (card) track.scrollBy({ left: Number(btn.dataset.dir) * (card.offsetWidth + 24), behavior: "smooth" });
     }),
   );
 </script>
