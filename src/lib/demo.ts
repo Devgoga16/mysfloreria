@@ -8,7 +8,7 @@ export const demoConfig: StoreConfig = {
   store: {
     name: "M&S Detalles",
     slug: "m-s-detalles",
-    phone: "51999999999",
+    phone: "51959159422",
     schedule: [1, 2, 3, 4, 5, 6].map((day) => ({ day, open: "08:00", close: "20:00" })),
     deliveryTypes: ["pickup", "delivery_own"],
     deliveryFranjas: ["morning", "afternoon"],

@@ -5,7 +5,7 @@
 export const site = {
   nombre: "M&S Detalles",
   // Número de WhatsApp con código de país, sin "+" ni espacios.
-  whatsapp: "51999999999",
+  whatsapp: "51959159422",
   whatsappMensaje: "¡Hola M&S Detalles! 🌸 Quisiera información para hacer un pedido.",
   celular: "959 159 422",
   correo: "hola@mysfloreria.pe",
