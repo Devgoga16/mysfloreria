@@ -17,6 +17,11 @@ const {
   description = "Florería M&S Detalles: arreglos florales, ramos y regalos hechos a mano con delivery en Lima. Flores para cumpleaños, aniversarios, San Valentín, Día de la Madre y toda ocasión.",
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+
+// Etiqueta de Google (GA4 + Google Ads). Solo se carga si hay códigos configurados.
+const GA4_ID = import.meta.env.PUBLIC_GA4_ID || "";
+const GADS_ID = import.meta.env.PUBLIC_GADS_ID || "";
+const tagIds = [GA4_ID, GADS_ID].filter(Boolean);
 const ogImage = new URL("/logo-completo.png", Astro.site);
 ---
 <!doctype html>
@@ -54,6 +59,18 @@ const ogImage = new URL("/logo-completo.png", Astro.site);
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:image" content={ogImage} />
+    {tagIds.length > 0 && (
+      <>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${tagIds[0]}`}></script>
+        <script is:inline define:vars={{ tagIds }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag() { dataLayer.push(arguments); }
+          window.gtag = gtag;
+          gtag("js", new Date());
+          tagIds.forEach(function (id) { gtag("config", id); });
+        </script>
+      </>
+    )}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500&family=Jost:wght@400;500&display=swap" rel="stylesheet" />

@@ -6,6 +6,7 @@ import {
 import { cart, type CartLine } from "./cart";
 import { favs } from "./favs";
 import { waLink } from "../data/site";
+import { trackAddToCart, trackBeginCheckout, trackSearch, initContactTracking } from "./analytics";
 
 export const esc = (s: unknown) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -150,7 +151,10 @@ export function addToCart(p: Product, variant: string | undefined, quantity: num
     quantity,
   });
   if (!quiet || !ok) toast(ok ? `“${p.name}” se agregó al carrito` : "Llegaste al máximo de 50 productos distintos por pedido.");
-  if (ok) bump(".cart-btn");
+  if (ok) {
+    bump(".cart-btn");
+    trackAddToCart(p, v?.name, v?.price ?? p.price, quantity);
+  }
   return ok;
 }
 
@@ -304,6 +308,7 @@ async function startCheckout(btn: HTMLButtonElement) {
     );
     pendingUrl = s.checkoutUrl;
     checkoutOrigin = new URL(s.checkoutUrl).origin;
+    trackBeginCheckout(s.sessionId, s.totalAmount, cart.get());
     step = "confirm";
     const owesLess = s.advanceDue > 0 && s.advanceDue < s.totalAmount;
     $("#cart .drawer__foot").innerHTML = `
@@ -433,6 +438,7 @@ function initSearch() {
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const q = input.value.trim();
+      trackSearch(q);
       location.href = q ? `/tienda?q=${encodeURIComponent(q)}` : "/tienda";
     });
     document.addEventListener("click", (e) => {
@@ -447,6 +453,7 @@ export function initShopUI() {
   favs.subscribe(renderFavs);
   loadCatalog().catch(() => {}); // precarga para botones, favoritos y buscador
   initSearch();
+  initContactTracking();
 
   document.addEventListener("click", async (e) => {
     const t = (e.target as HTMLElement).closest<HTMLElement>(

@@ -20,6 +20,10 @@ import { waLink } from "../data/site";
 
 <script>
   import { cart } from "../lib/cart";
+  import { trackPurchaseFromPending } from "../lib/analytics";
+
+  // Conversión: pedido completado (una sola vez por pago)
+  trackPurchaseFromPending();
 
   // Si llegó por redirección (returnUrl), el carrito aún no se vació.
   cart.clear();

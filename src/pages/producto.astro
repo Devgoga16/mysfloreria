@@ -68,6 +68,7 @@ import { waLink } from "../data/site";
   } from "../lib/shop";
   import { getConfig, soles, priceLabel, prepLabel, isComplement, franjaLabel, type Product } from "../lib/utracker";
   import { waLink } from "../data/site";
+  import { trackViewItem } from "../lib/analytics";
 
   const id = new URLSearchParams(location.search).get("id") ?? "";
   const root = document.getElementById("pdp")!;
@@ -107,6 +108,7 @@ import { waLink } from "../data/site";
       return;
     }
     setMeta(p);
+    trackViewItem(p);
     const { store } = await getConfig();
     const canBuy = canBuyOnline() && p.inStock;
     const images = p.images.length ? p.images : ["/logo-completo.png"];
