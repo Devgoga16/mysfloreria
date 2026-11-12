@@ -8,7 +8,7 @@ export const site = {
   whatsapp: "51959159422",
   whatsappMensaje: "¡Hola M&S Detalles! 🌸 Quisiera información para hacer un pedido.",
   celular: "959 159 422",
-  correo: "hola@mysfloreria.pe",
+  correo: "floreriamysdetalles@gmail.com",
   direccion: "Av. Metropolitana 407, San Martín de Comas 15314",
   horario: "Lun a Dom: 7:30 a.m. – 11:30 p.m.",
   redes: {
