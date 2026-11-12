@@ -354,3 +354,61 @@ html.intro-on .intro.intro--skip { animation: intro-out 380ms cubic-bezier(0.32,
 @media (min-width: 1400px) { .catnav__list { mask-image: none; } }
 /* Correo largo en el pie: que corte en vez de desbordar */
 .footer a[href^="mailto"] { overflow-wrap: anywhere; }
+
+/* ===== Inspiración: franja de beneficios, redes y botón de WhatsApp ===== */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+.portada { margin-bottom: clamp(28px, 4vw, 44px); }
+.perks { padding-bottom: clamp(56px, 7vw, 88px); }
+.perks__list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center; }
+.perks__list li { display: grid; justify-items: center; gap: 4px; }
+.perks__icon {
+  display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; margin-bottom: 8px;
+  background: var(--plum); color: var(--white); box-shadow: 0 10px 22px -12px rgba(75, 38, 50, .55);
+}
+.perks__icon .icon { width: 26px; height: 26px; stroke-width: 1.5; }
+.perks__list strong { font-weight: 500; color: var(--plum); font-size: 1rem; }
+.perks__list li > span:last-child { font-size: .86rem; color: var(--muted); line-height: 1.4; max-width: 22ch; }
+@media (max-width: 760px) {
+  .perks__list { grid-template-columns: 1fr 1fr; gap: 22px 12px; }
+  .perks__icon { width: 50px; height: 50px; }
+  .perks__icon .icon { width: 22px; height: 22px; }
+  .perks__list strong { font-size: .95rem; }
+  .perks__list li > span:last-child { font-size: .8rem; }
+}
+
+/* Redes en la cabecera (escritorio) */
+.head-social { display: none; }
+@media (min-width: 1100px) {
+  .head-social { display: flex; gap: 8px; margin-right: 10px; padding-right: 16px; border-right: 1px solid var(--line); }
+  .head-social a {
+    display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%;
+    border: 1px solid var(--line); background: rgba(255, 255, 255, .6); color: var(--plum);
+    transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease, transform 160ms var(--ease-out);
+  }
+  .head-social svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .head-social a:active { transform: scale(.94); }
+  .header.is-condensed .head-social { display: none; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .head-social a:hover { background: var(--plum); border-color: var(--plum); color: var(--white); }
+}
+
+/* Botón verde de WhatsApp en la barra de categorías */
+.catnav__cta {
+  padding: 8px 16px; border-radius: 999px; background: #168a47; color: var(--white);
+  box-shadow: 0 8px 18px -10px rgba(22, 138, 71, .7);
+  transition: background-color 200ms ease, transform 160ms var(--ease-out);
+}
+.catnav__cta .icon { width: 17px; height: 17px; }
+.catnav__cta:active { transform: scale(.97); }
+@media (hover: hover) and (pointer: fine) {
+  .catnav__cta:hover { background: #12753c; color: var(--white); }
+}
+.perks { display: block; }
+.perks__list { width: 100%; }
+.perks__list .perks__icon .icon { color: var(--white); stroke: currentColor; }
+@media (min-width: 1200px) {
+  .catnav__inner { gap: 10px; }
+  .catnav__list a { padding: 8px 8px; font-size: .83rem; }
+}

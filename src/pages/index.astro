@@ -51,6 +51,17 @@ const galeriaEjemplo = [
   <!-- ================= PORTADAS (editar en src/data/banners.ts) ================= -->
   <PortadaCarousel />
 
+  <!-- ================= POR QUÉ M&S (franja bajo la portada) ================= -->
+  <section class="container perks" id="nosotros" aria-labelledby="why-title">
+    <h2 class="sr-only" id="why-title">Por qué elegir M&amp;S Detalles</h2>
+    <ul class="perks__list">
+      {valores.map((v, i) => (
+        <li class={`reveal${i ? ` reveal--d${Math.min(i, 3)}` : ""}`}><span class="perks__icon"><Icon name={v.icon} /></span><strong>{v.titulo}</strong><span>{v.texto}</span></li>
+      ))}
+    </ul>
+  </section>
+
+
   <!-- ================= CATEGORÍAS (editar en src/data/categorias.ts) ================= -->
   <Categorias />
 
@@ -105,16 +116,6 @@ const galeriaEjemplo = [
         ))}
       </ul>
     </div>
-  </section>
-
-  <!-- ================= POR QUÉ M&S ================= -->
-  <section class="container why-ms" id="nosotros" aria-labelledby="why-title">
-    <h2 class="why-ms__title" id="why-title">Por qué elegir <span>M&amp;S Detalles</span></h2>
-    <ul class="why-ms__list">
-      {valores.map((v) => (
-        <li><Icon name={v.icon} /><div><strong>{v.titulo}</strong><span>{v.texto}</span></div></li>
-      ))}
-    </ul>
   </section>
 
   <!-- ================= PEDIDO PERSONALIZADO ================= -->

@@ -1,5 +1,5 @@
 ---
-import { waLink } from "../data/site";
+import { site, waLink } from "../data/site";
 import Icon from "./Icon.astro";
 ---
 <div class="topbar">
@@ -31,6 +31,11 @@ import Icon from "./Icon.astro";
     </a>
 
     <div class="nav__end">
+      <div class="head-social" aria-label="Redes sociales">
+        <a href={site.redes.tiktok} target="_blank" rel="noopener" aria-label="TikTok"><svg viewBox="0 0 24 24"><path d="M14 3v11.5a3.5 3.5 0 1 1-3-3.46M14 3c.5 2.5 2.5 4.5 5 4.5"/></svg></a>
+        <a href={site.redes.instagram} target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
+        <a href={site.redes.facebook} target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/></svg></a>
+      </div>
       <button class="head-btn fav-head" data-drawer-open="favs" aria-label="Ver favoritos">
         <Icon name="heart" /><span class="head-btn__label">Favoritos</span>
         <span class="head-btn__count js-fav-count" hidden>0</span>
@@ -50,8 +55,8 @@ import Icon from "./Icon.astro";
         <li><a href="/tienda?cat=Box%20florales">Box florales</a></li>
         <li><a href="/tienda?cat=Condolencias">Condolencias</a></li>
       </ul>
-      <a href={waLink("¡Hola! Quisiera un arreglo personalizado 🌷")} target="_blank" rel="noopener" class="catnav__cta">
-        <Icon name="sparkle" /> Pedido personalizado
+      <a href={waLink()} target="_blank" rel="noopener" class="catnav__cta">
+        <svg viewBox="0 0 32 32" class="icon" aria-hidden="true"><path fill="currentColor" d="M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3zm0 23.7a10.7 10.7 0 0 1-5.5-1.5l-.4-.2-3.9 1 1-3.8-.3-.4A10.7 10.7 0 1 1 16 26.7zm5.9-8c-.3-.2-1.9-1-2.2-1-.3-.1-.5-.2-.7.2l-1 1.2c-.2.2-.4.2-.7.1a8.8 8.8 0 0 1-4.4-3.8c-.3-.6.3-.5 1-1.7.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.9.4 3.7 3.7 0 0 0-1.1 2.7 6.5 6.5 0 0 0 1.3 3.4 14.7 14.7 0 0 0 5.7 5c2.1.9 2.9 1 4 .8.6-.1 1.9-.8 2.2-1.5.3-.8.3-1.4.2-1.5l-.6-.3z"/></svg> Pedir por WhatsApp
       </a>
     </div>
   </nav>
