@@ -31,9 +31,6 @@ import Icon from "./Icon.astro";
     </a>
 
     <div class="nav__end">
-      <a href={waLink()} target="_blank" rel="noopener" class="head-btn head-btn--wa" aria-label="Escríbenos por WhatsApp">
-        <Icon name="chat" /><span class="head-btn__label">Ayuda</span>
-      </a>
       <button class="head-btn fav-head" data-drawer-open="favs" aria-label="Ver favoritos">
         <Icon name="heart" /><span class="head-btn__label">Favoritos</span>
         <span class="head-btn__count js-fav-count" hidden>0</span>
@@ -49,9 +46,9 @@ import Icon from "./Icon.astro";
     <div class="container catnav__inner">
       <ul class="catnav__list" id="catnav">
         <li><a href="/tienda">Todo</a></li>
-        <li><a href="/tienda?ocasion=Amor">Amor</a></li>
-        <li><a href="/tienda?ocasion=Cumplea%C3%B1os">Cumpleaños</a></li>
-        <li><a href="/tienda?ocasion=Condolencias">Condolencias</a></li>
+        <li><a href="/tienda?cat=Ramos%20de%20flores">Ramos de flores</a></li>
+        <li><a href="/tienda?cat=Box%20florales">Box florales</a></li>
+        <li><a href="/tienda?cat=Condolencias">Condolencias</a></li>
       </ul>
       <a href={waLink("¡Hola! Quisiera un arreglo personalizado 🌷")} target="_blank" rel="noopener" class="catnav__cta">
         <Icon name="sparkle" /> Pedido personalizado
@@ -61,7 +58,7 @@ import Icon from "./Icon.astro";
 
   <div class="mobile-menu" id="menu-movil">
     <a href="/tienda">Tienda</a>
-    <a href="/#ocasiones">Ocasiones</a>
+    <a href="/#categorias">Categorías</a>
     <a href="/#como-comprar">Cómo comprar</a>
     <a href="/#nosotros">Nosotros</a>
     <a href="/ayuda/preguntas-frecuentes">Preguntas frecuentes</a>
@@ -86,8 +83,14 @@ import Icon from "./Icon.astro";
   menu.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => set(false)));
   document.addEventListener("keydown", (e) => e.key === "Escape" && set(false));
 
-  // Línea y sombra en la cabecera al bajar
-  const onScroll = () => header.classList.toggle("is-scrolled", window.scrollY > 8);
+  // Al bajar: línea y sombra, y la cabecera se compacta (el logo queda en M&S).
+  // Se usan dos umbrales distintos para que no "salte" al quedar justo en el límite.
+  const onScroll = () => {
+    const y = window.scrollY;
+    header.classList.toggle("is-scrolled", y > 8);
+    if (y > 140) header.classList.add("is-condensed");
+    else if (y < 40) header.classList.remove("is-condensed");
+  };
   onScroll();
   window.addEventListener("scroll", onScroll, { passive: true });
 

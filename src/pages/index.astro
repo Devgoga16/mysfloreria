@@ -2,34 +2,32 @@
 import Base from "../layouts/Base.astro";
 import { Image } from "astro:assets";
 import Icon from "../components/Icon.astro";
-import PromoCarousel from "../components/PromoCarousel.astro";
-import { categoryBanners, withEm } from "../data/banners";
+import PortadaCarousel from "../components/PortadaCarousel.astro";
+import Categorias from "../components/Categorias.astro";
 import { site, waLink, unsplash as u } from "../data/site";
-
-// Ocasiones: enlazan a la tienda filtrada
-const ocasiones = [
-  { nombre: "Amor", img: "photo-1494972308805-463bc619d34e" },
-  { nombre: "Cumpleaños", img: "photo-1567696153798-9111f9cd3d0d" },
-  { nombre: "Aniversario", img: "photo-1591886960571-74d43a9d4166" },
-  { nombre: "Agradecimiento", img: "photo-1561181286-d3fee7d55364" },
-  { nombre: "Nacimiento", img: "photo-1525310072745-f49212b5ac6d" },
-  { nombre: "Condolencias", img: "photo-1606041008023-472dfb5e530f" },
-];
+import fotoPersonalizado from "../assets/galeria/11.jpg";
 
 const pasos = [
-  { icon: "flower", titulo: "Elige tu arreglo", texto: "Explora la tienda y escoge el ramo, el tamaño y la cantidad que quieras regalar." },
-  { icon: "card", titulo: "Paga en línea", texto: "Indica la fecha y el lugar de entrega, y paga en una ventana segura en pocos minutos." },
-  { icon: "truck", titulo: "Lo llevamos por ti", texto: "Preparamos tu pedido a mano y lo entregamos en Lima, o lo recoges en tienda." },
+  { titulo: "Elige tu arreglo", texto: "Escoge el diseño, el tamaño y agrega un detalle si quieres." },
+  { titulo: "Paga en línea", texto: "Indica la fecha y la dirección, y paga en una ventana segura." },
+  { titulo: "Lo llevamos por ti", texto: "Lo preparamos a mano y lo entregamos, o lo recoges en tienda." },
+] as const;
+
+const entregas = [
+  { icon: "truck", titulo: "Delivery en Lima", texto: "A domicilio, en la fecha que elijas." },
+  { icon: "store", titulo: "Recojo en tienda", texto: "Av. Metropolitana 407, Comas." },
+  { icon: "wallet", titulo: "Yape, Plin o transferencia", texto: "Pago seguro al finalizar tu pedido." },
+  { icon: "clock", titulo: "Atención todos los días", texto: "De 7:30 a.m. a 11:30 p.m." },
 ] as const;
 
 const valores = [
-  { icon: "hand", titulo: "Hecho a mano", texto: "Cada arreglo se arma a mano, uno por uno." },
-  { icon: "palette", titulo: "A tu medida", texto: "Elegimos contigo colores, flores y estilo." },
-  { icon: "gift", titulo: "Detalles que suman", texto: "Envolturas y acabados cuidados al detalle." },
-  { icon: "chat", titulo: "Atención cercana", texto: "Te acompañamos por WhatsApp de principio a fin." },
+  { icon: "hand", titulo: "Hecho a mano", texto: "Cada arreglo se arma uno por uno." },
+  { icon: "palette", titulo: "A tu medida", texto: "Elegimos contigo colores y estilo." },
+  { icon: "gift", titulo: "Cuidamos el detalle", texto: "Envolturas y acabados cuidados." },
+  { icon: "chat", titulo: "Atención cercana", texto: "Te acompañamos por WhatsApp." },
 ] as const;
 
-// Galería de Instagram: pega tus fotos en src/assets/galeria/ (jpg, png o webp).
+// Galería: pega tus fotos en src/assets/galeria/ (jpg, png o webp).
 // Se muestran las 6 primeras ordenadas por nombre (1.jpg, 2.jpg, … 10.jpg).
 // Las fotos .jfif son JPG: basta cambiarles la extensión a .jpg.
 // Mientras la carpeta esté vacía se usan las fotos de ejemplo de abajo.
@@ -50,151 +48,73 @@ const galeriaEjemplo = [
 ];
 ---
 <Base>
-  <!-- ================= HERO ================= -->
-  <section class="hero">
-    <div class="container hero__grid">
-      <div class="hero__copy">
-        <span class="eyebrow eyebrow--line">Florería en Lima</span>
-        <h1 class="display">Flores que dicen <em>lo que sientes</em></h1>
-        <p class="lead">Ramos y arreglos hechos a mano para cumpleaños, aniversarios y todos esos momentos que merecen un detalle especial.</p>
-        <div class="hero__actions">
-          <a href="/tienda" class="btn btn--primary btn--lg">Ver la tienda <Icon name="arrow" /></a>
-          <a href={waLink("¡Hola! Quisiera un arreglo personalizado 🌷")} target="_blank" rel="noopener" class="btn btn--ghost btn--lg">Pedido personalizado</a>
-        </div>
-        <ul class="perks">
-          <li><Icon name="hand" />Hecho a mano</li>
-          <li><Icon name="truck" />Delivery en Lima</li>
-          <li><Icon name="wallet" />Yape, Plin y transferencia</li>
-        </ul>
-      </div>
+  <!-- ================= PORTADAS (editar en src/data/banners.ts) ================= -->
+  <PortadaCarousel />
 
-      <div class="hero__art" aria-hidden="true">
-        <div class="hero__arch">
-          <img src={u("photo-1563241527-3004b7be0ffd", 760, 1060)} alt="" width="760" height="1060" fetchpriority="high" />
-        </div>
-        <img class="hero__small hero__small--1" src={u("photo-1561181286-d3fee7d55364", 360)} alt="" width="360" height="360" />
-        <img class="hero__small hero__small--2" src={u("photo-1582794543139-8ac9cb0f7b11", 360, 450)} alt="" width="360" height="450" />
-        <div class="hero__note">
-          <img src="/logo-monograma.png" alt="" width="360" height="146" />
-          <div>
-            <strong>Pétalo a pétalo</strong>
-            <span>Diseños únicos para cada historia</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- ================= CATEGORÍAS (editar en src/data/categorias.ts) ================= -->
+  <Categorias />
 
-  <!-- ================= PROMOCIONES (editar en src/data/banners.ts) ================= -->
-  <PromoCarousel />
-
-  <!-- ================= OCASIONES ================= -->
-  <section class="section container section--flush-top" id="ocasiones">
-    <div class="section-head reveal">
+  <!-- ================= LOS MÁS PEDIDOS (desde uTracker) ================= -->
+  <section class="container section section--flush-top featured-sec" id="catalogo">
+    <div class="split-head reveal">
       <div>
-        <span class="eyebrow eyebrow--line">Para cada momento</span>
-        <h2 class="title">Compra por <em>ocasión</em></h2>
+        <h2 class="title">Los más pedidos</h2>
+        <p class="muted">Diseños listos para regalar, preparados a mano.</p>
       </div>
-      <a href="/tienda" class="link">Ver todos los arreglos <Icon name="arrow" /></a>
-    </div>
-    <ul class="occasions__list reveal reveal--d1">
-      {ocasiones.map((o) => (
-        <li>
-          <a class="occasion" href={`/tienda?ocasion=${encodeURIComponent(o.nombre)}`}>
-            <span class="occasion__img"><img src={u(o.img, 320)} alt="" width="320" height="320" loading="lazy" decoding="async" /></span>
-            <span class="occasion__name">{o.nombre}</span>
-          </a>
-        </li>
-      ))}
-    </ul>
-  </section>
-
-  <!-- ================= BANNERS POR CATEGORÍA ================= -->
-  <section class="container catbanners">
-    {categoryBanners.map((b, i) => (
-      <a class={`catbanner reveal reveal--d${i + 1}`} href={b.href}>
-        <Image src={b.image} alt="" width={800} loading="lazy" decoding="async" />
-        <div class="catbanner__copy">
-          <span class="eyebrow">{b.eyebrow}</span>
-          <h3 set:html={withEm(b.title)} />
-          <p>{b.text}</p>
-          <span class="catbanner__cta">{b.cta} <Icon name="arrow" /></span>
-        </div>
-      </a>
-    ))}
-  </section>
-
-  <!-- ================= DESTACADOS (desde uTracker) ================= -->
-  <section class="container" id="catalogo">
-    <div class="featured reveal">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow eyebrow--line">Favoritos</span>
-          <h2 class="title">Los más <em>pedidos</em></h2>
-        </div>
-        <div class="featured__actions">
-          <a href="/tienda" class="link">Ver toda la tienda <Icon name="arrow" /></a>
-          <button class="round-btn" data-dir="-1" aria-label="Anterior"><Icon name="arrow-left" /></button>
-          <button class="round-btn round-btn--fill" data-dir="1" aria-label="Siguiente"><Icon name="arrow" /></button>
-        </div>
+      <div class="featured__actions">
+        <a href="/tienda" class="link">Ver toda la tienda <Icon name="arrow" /></a>
+        <button class="round-btn" data-dir="-1" aria-label="Anterior"><Icon name="arrow-left" /></button>
+        <button class="round-btn round-btn--fill" data-dir="1" aria-label="Siguiente"><Icon name="arrow" /></button>
       </div>
-      <div class="catalog__track" id="destacados"></div>
     </div>
+    <div class="tabs" role="tablist" aria-label="Filtrar por categoría" id="featured-tabs" hidden></div>
+    <div class="catalog__track" id="destacados"></div>
   </section>
 
   <!-- ================= COMPLEMENTOS (desde uTracker) ================= -->
   <section class="container extras" id="complementos" hidden>
-    <div class="section-head reveal">
+    <div class="split-head reveal">
       <div>
-        <span class="eyebrow eyebrow--line">Súmale un detalle</span>
-        <h2 class="title">Complementa tu <em>regalo</em></h2>
+        <h2 class="title">Súmale un detalle</h2>
+        <p class="muted">Se entrega junto con tu arreglo.</p>
       </div>
       <a href="/tienda?cat=Complementos" class="link">Ver complementos <Icon name="arrow" /></a>
     </div>
     <ul class="minis minis--row" id="extras-list"></ul>
   </section>
 
-  <!-- ================= CÓMO COMPRAR ================= -->
-  <section class="section container" id="como-comprar">
-    <div class="section-head section-head--center reveal">
-      <div>
-        <span class="eyebrow">Fácil y rápido</span>
-        <h2 class="title">Así de simple es <em>regalar</em></h2>
+  <!-- ================= COMPRAR ES FÁCIL (pasos + entregas) ================= -->
+  <section class="easy" id="como-comprar">
+    <div class="container easy__grid">
+      <div class="easy__steps reveal">
+        <span class="eyebrow">Cómo comprar</span>
+        <h2 class="title">Regalar flores, <em>sin complicaciones</em></h2>
+        <ol>
+          {pasos.map((p, i) => (
+            <li>
+              <span class="easy__num">{i + 1}</span>
+              <div><strong>{p.titulo}</strong><span>{p.texto}</span></div>
+            </li>
+          ))}
+        </ol>
+        <a href="/tienda" class="btn btn--primary btn--lg">Empezar a comprar <Icon name="arrow" /></a>
       </div>
-    </div>
-    <ol class="steps">
-      {pasos.map((p, i) => (
-        <li class={`step reveal reveal--d${i + 1}`}>
-          <span class="step__icon"><Icon name={p.icon} /></span>
-          <span class="step__num">0{i + 1}</span>
-          <h3>{p.titulo}</h3>
-          <p>{p.texto}</p>
-        </li>
-      ))}
-    </ol>
-  </section>
-
-  <!-- ================= HISTORIA ================= -->
-  <section class="container story" id="nosotros">
-    <div class="story__media reveal">
-      <img class="story__main" src={u("photo-1487070183336-b863922373d4", 760, 950)} alt="Interior de la florería con arreglos" width="760" height="950" loading="lazy" decoding="async" />
-      <img class="story__small" src={u("photo-1455659817273-f96807779a8a", 400)} alt="" width="400" height="400" loading="lazy" decoding="async" />
-      <span class="story__seal"><img src="/logo-completo.png" alt="" width="480" height="480" loading="lazy" /></span>
-    </div>
-    <div class="story__copy reveal reveal--d1">
-      <span class="eyebrow eyebrow--line">Nuestra historia</span>
-      <h2 class="title">Detalles hechos a mano, con <em>mucho cariño</em></h2>
-      <p>En M&amp;S Detalles creemos que un arreglo floral es mucho más que flores: es una forma de decir “te quiero”, “gracias” o “aquí estoy”. Por eso diseñamos cada pedido pensando en la persona que lo va a recibir.</p>
-      <ul class="values">
-        {valores.map((v) => (
-          <li>
-            <span class="icon-wrap"><Icon name={v.icon} /></span>
-            <div><strong>{v.titulo}</strong><span>{v.texto}</span></div>
-          </li>
+      <ul class="easy__info reveal reveal--d1" id="entregas" aria-label="Entregas y pagos">
+        {entregas.map((e) => (
+          <li><span class="easy__icon"><Icon name={e.icon} /></span><strong>{e.titulo}</strong><span>{e.texto}</span></li>
         ))}
       </ul>
-      <a href="/tienda" class="btn btn--primary btn--lg">Descubre los arreglos <Icon name="arrow" /></a>
     </div>
+  </section>
+
+  <!-- ================= POR QUÉ M&S ================= -->
+  <section class="container why-ms" id="nosotros" aria-labelledby="why-title">
+    <h2 class="why-ms__title" id="why-title">Por qué elegir <span>M&amp;S Detalles</span></h2>
+    <ul class="why-ms__list">
+      {valores.map((v) => (
+        <li><Icon name={v.icon} /><div><strong>{v.titulo}</strong><span>{v.texto}</span></div></li>
+      ))}
+    </ul>
   </section>
 
   <!-- ================= PEDIDO PERSONALIZADO ================= -->
@@ -207,29 +127,19 @@ const galeriaEjemplo = [
         <a href={waLink("¡Hola! Quisiera diseñar un arreglo personalizado 🌷")} target="_blank" rel="noopener" class="btn btn--white btn--lg"><Icon name="chat" /> Escríbenos por WhatsApp</a>
       </div>
       <div class="custom__media">
-        <img src={u("photo-1457089328109-e5d9bd499191", 800, 800)} alt="Arreglo de rosas y flores de temporada" width="800" height="800" loading="lazy" decoding="async" />
+        <Image src={fotoPersonalizado} alt="Ramo personalizado de M&S Detalles" width={800} loading="lazy" decoding="async" />
       </div>
     </div>
   </section>
 
-  <!-- ================= ENTREGAS Y PAGOS ================= -->
-  <section class="container" id="entregas">
-    <ul class="info reveal">
-      <li><Icon name="truck" /><strong>Delivery en Lima</strong><span>Llevamos tu pedido a domicilio en Lima Metropolitana.</span></li>
-      <li><Icon name="store" /><strong>Recojo en tienda</strong><span>Si prefieres, recógelo tú mismo en el día y la hora que elijas.</span></li>
-      <li><Icon name="wallet" /><strong>Pagos fáciles</strong><span>Yape, Plin o transferencia, en una ventana de pago segura.</span></li>
-      <li><Icon name="calendar" /><strong>Programa tu fecha</strong><span>Elige el día de entrega al momento de pagar.</span></li>
-    </ul>
-  </section>
-
-  <!-- ================= GALERÍA ================= -->
-  <section class="section container">
-    <div class="section-head reveal">
+  <!-- ================= NUESTROS TRABAJOS (galería) ================= -->
+  <section class="section section--flush-top container">
+    <div class="split-head reveal">
       <div>
-        <span class="eyebrow eyebrow--line">Síguenos</span>
-        <h2 class="title">Inspiración en <em>Instagram</em></h2>
+        <h2 class="title">Nuestros trabajos</h2>
+        <p class="muted">Arreglos reales que preparamos para nuestros clientes.</p>
       </div>
-      <a href={site.redes.instagram} target="_blank" rel="noopener" class="link"><Icon name="instagram" /> Ver Instagram</a>
+      <a href={site.redes.instagram} target="_blank" rel="noopener" class="link"><Icon name="instagram" /> Síguenos en Instagram</a>
     </div>
     <div class="gallery reveal reveal--d1" style={`--cols: ${fotosPropias.length || galeriaEjemplo.length}`}>
       {fotosPropias.length
@@ -248,17 +158,33 @@ const galeriaEjemplo = [
 </Base>
 
 <script>
-  import { loadCatalog, renderProducts, renderSkeleton, renderError, availableComplements, miniCard } from "../lib/shop";
-  import { isComplement } from "../lib/utracker";
+  import { loadCatalog, renderProducts, renderSkeleton, renderError, availableComplements, miniCard, esc } from "../lib/shop";
+  import { isComplement, type Product } from "../lib/utracker";
 
   const track = document.getElementById("destacados")!;
+  const tabs = document.getElementById("featured-tabs")!;
+  let pool: Product[] = [];
+  let active = "";
+
+  function show() {
+    renderProducts(track, pool.filter((p) => !active || p.category === active).slice(0, 10));
+    track.scrollTo({ left: 0 });
+  }
+
   async function load() {
     renderSkeleton(track);
     try {
-      const { products } = await loadCatalog();
-      // Primero los disponibles; se muestran hasta 8.
-      const sorted = products.filter((p) => !isComplement(p)).sort((a, b) => Number(b.inStock) - Number(a.inStock));
-      renderProducts(track, sorted.slice(0, 8));
+      const { products, categories } = await loadCatalog();
+      // Primero los disponibles
+      pool = products.filter((p) => !isComplement(p)).sort((a, b) => Number(b.inStock) - Number(a.inStock));
+      // Pestañas: solo categorías con al menos 2 arreglos, para que valga la pena filtrar
+      const count = (c: string) => pool.filter((p) => p.category === c).length;
+      const cats = categories.filter((c) => count(c) >= 2);
+      tabs.innerHTML = ["", ...cats]
+        .map((c) => `<button role="tab" class="tab${c === active ? " is-active" : ""}" aria-selected="${c === active}" data-tab="${esc(c)}">${c ? esc(c) : "Todos"}</button>`)
+        .join("");
+      tabs.hidden = cats.length === 0;
+      show();
       const extras = availableComplements(10);
       if (extras.length) {
         document.getElementById("extras-list")!.innerHTML = extras.map(miniCard).join("");
@@ -268,6 +194,16 @@ const galeriaEjemplo = [
       renderError(track, err, load);
     }
   }
+  tabs.addEventListener("click", (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-tab]");
+    if (!b) return;
+    active = b.dataset.tab || "";
+    tabs.querySelectorAll(".tab").forEach((t) => {
+      t.classList.toggle("is-active", t === b);
+      t.setAttribute("aria-selected", String(t === b));
+    });
+    show();
+  });
   load();
   document.addEventListener("catalog:refresh", load);
 

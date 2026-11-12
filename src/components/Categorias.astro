@@ -1,0 +1,84 @@
+---
+// Sección "¿Qué tipo de arreglos tenemos?": una tarjeta por categoría.
+// Las tarjetas se generan en el servidor (buenas para Google) y luego
+// se completan en el navegador con la cantidad de arreglos de uTracker.
+import { Image } from "astro:assets";
+import Icon from "./Icon.astro";
+import { categorias, catUrl } from "../data/categorias";
+---
+<section class="container section cats" id="categorias" aria-labelledby="cats-title">
+  <div class="section-head section-head--center reveal">
+    <div>
+      <span class="eyebrow eyebrow--line">Nuestros arreglos</span>
+      <h2 class="title" id="cats-title">¿Qué tipo de arreglos <em>tenemos?</em></h2>
+      <p class="lead">Elige una categoría y descubre todos los diseños disponibles.</p>
+    </div>
+  </div>
+
+  <ul class="cats__grid" id="cats-grid">
+    {categorias.map((c, i) => (
+      <li class={`reveal reveal--d${(i % 4) + 1}`} data-cat={c.nombre}>
+        <a class="cat" href={catUrl(c.nombre)}>
+          <span class="cat__img">
+            {typeof c.imagen === "string" ? (
+              <img src={c.imagen} alt="" width="700" height="560" loading="lazy" decoding="async" />
+            ) : (
+              <Image src={c.imagen} alt="" width={700} height={560} fit="cover" loading="lazy" decoding="async" />
+            )}
+          </span>
+          <span class="cat__body">
+            <span class="cat__name">{c.nombre}</span>
+            <span class="cat__desc">{c.descripcion}</span>
+            <span class="cat__cta">
+              <span class="cat__count" data-count>Ver arreglos</span>
+              <Icon name="arrow" />
+            </span>
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<script>
+  import { loadCatalog, esc } from "../lib/shop";
+  import { isComplement } from "../lib/utracker";
+
+  const grid = document.getElementById("cats-grid")!;
+  loadCatalog()
+    .then(({ products, categories }) => {
+      const count = new Map<string, number>();
+      products.forEach((p) => count.set(p.category, (count.get(p.category) ?? 0) + 1));
+
+      // Cantidad en cada tarjeta
+      const known = new Set<string>();
+      grid.querySelectorAll<HTMLElement>("[data-cat]").forEach((li) => {
+        const name = li.dataset.cat!;
+        known.add(name);
+        const n = count.get(name) ?? 0;
+        li.querySelector("[data-count]")!.textContent =
+          n === 0 ? "Consúltanos" : `Ver ${n} ${n === 1 ? "arreglo" : "arreglos"}`;
+        li.classList.toggle("is-empty", n === 0);
+      });
+
+      // Categorías nuevas de uTracker que aún no están en src/data/categorias.ts
+      const extras = categories.filter(
+        (c) => !known.has(c) && count.get(c) && !products.some((p) => p.category === c && isComplement(p)),
+      );
+      grid.insertAdjacentHTML(
+        "beforeend",
+        extras
+          .map((c) => {
+            const img = products.find((p) => p.category === c && p.images[0])?.images[0] ?? "/logo-completo.png";
+            const n = count.get(c)!;
+            return `<li data-cat="${esc(c)}"><a class="cat" href="/tienda?cat=${encodeURIComponent(c)}">
+              <span class="cat__img"><img src="${esc(img)}" alt="" loading="lazy" /></span>
+              <span class="cat__body"><span class="cat__name">${esc(c)}</span>
+              <span class="cat__cta"><span class="cat__count">Ver ${n} ${n === 1 ? "arreglo" : "arreglos"}</span>
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></span></a></li>`;
+          })
+          .join(""),
+      );
+    })
+    .catch(() => {});
+</script>

@@ -15,7 +15,7 @@
   --plum: #4b2632;          /* botones y pie */
   --plum-dark: #351a23;
   --ink: #34242a;
-  --muted: #7b686c;
+  --muted: #6a565b;        /* gris de textos secundarios (contraste AA sobre rosado) */
   --white: #fff;
 
   --radius-lg: 32px;

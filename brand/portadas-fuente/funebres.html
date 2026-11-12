@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:wght@600&family=Montserrat:wght@500;600;700&display=block" rel="stylesheet" />
+<link rel="stylesheet" href="base.css" />
+<style>
+  /* Paleta sobria: marfil, verde salvia y ciruela apagado */
+  .bg { background-image: url("fondo-acuarela.webp"); filter: grayscale(.85) sepia(.18) brightness(1.04); }
+  .bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(226,230,221,.55), rgba(248,246,241,.4) 50%, rgba(226,230,221,.55)); }
+  .glow { background: radial-gradient(closest-side, rgba(255,255,252,.95), rgba(250,249,245,.6) 60%, transparent); }
+  .photo--left { width: 720px; }
+  .photo--left img { object-position: 50% 45%; }
+  .photo--right img { object-position: 50% 8%; transform: scaleX(-1) scale(1.35); transform-origin: 50% 20%; }
+  .logo { color: #8b7d6b; }
+  .logo img { filter: grayscale(.55) sepia(.25); }
+  .logo__div svg { fill: #9bab96; }
+  .tagline { color: #5c4a55; }
+  .pill { background: linear-gradient(90deg, #8fa38b, #7d927a); box-shadow: 0 8px 22px -10px rgba(70, 90, 70, .55); }
+  .title { color: #4b2f3d; font-size: 156px; text-shadow: 0 2px 0 rgba(255,255,255,.7); }
+  .underline path { stroke: #a9b8a4; }
+  .text { color: #4a3d45; }
+  .foot { color: #6f7f6b; }
+</style></head>
+<body>
+<div class="banner">
+  <div class="bg"></div>
+  <div class="glow"></div>
+  <div class="photo photo--left"><img src="1.jpg" alt="" /></div>
+  <div class="photo photo--right"><img src="1.jpg" alt="" /></div>
+  <div class="center">
+    <div class="logo">
+      <span class="logo__word">Florería</span>
+      <img src="logo-monograma.png" alt="" />
+      <span class="logo__div"><i></i><svg viewBox="0 0 24 24"><path d="M12 3c1 2.8 1 5 0 7-1-2-1-4.2 0-7zM12 21c-1-2.8-1-5 0-7 1 2 1 4.2 0 7zM3 12c2.8-1 5-1 7 0-2 1-4.2 1-7 0zM21 12c-2.8 1-5 1-7 0 2-1 4.2-1 7 0z"/><circle cx="12" cy="12" r="1.6"/></svg><i></i></span>
+      <span class="logo__word">Detalles</span>
+    </div>
+    <span class="pill">CONDOLENCIAS</span>
+    <h1 class="title">Arreglos Fúnebres</h1>
+    <svg class="underline" viewBox="0 0 640 26" fill="none"><path d="M10 16 C 180 4, 460 4, 630 14" stroke-width="3" stroke-linecap="round"/></svg>
+    <p class="text">Acompañamos tus momentos difíciles<br />con <b>respeto</b> y <b>elegancia</b>.</p>
+    <div class="foot"><i></i><span>Coronas y arreglos · Entrega en Lima</span><i></i></div>
+  </div>
+</div>
+</body></html>

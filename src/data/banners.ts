@@ -1,79 +1,36 @@
 // ============================================================
-//  Banners del inicio. Edita textos, enlaces y fotos aquí.
-//  Las fotos se toman de src/assets/galeria/ (tus fotos reales).
+//  Portadas del inicio. Edita imágenes, textos alternativos y enlaces aquí.
 // ============================================================
-import { waLink } from "./site";
-import foto1 from "../assets/galeria/1.jpg";
-import foto5 from "../assets/galeria/5.jpg";
-import foto7 from "../assets/galeria/7.jpg";
-import foto9 from "../assets/galeria/9.jpg";
-import foto11 from "../assets/galeria/11.jpg";
+import portadaGraduacion from "../assets/portada/portada.png";
+import portadaServicios from "../assets/portada/portada-2-servicios.png";
+import portadaFunebres from "../assets/portada/portada-3-funebres.png";
 
-export interface Slide {
-  eyebrow: string;
-  /** Usa *texto* para la parte en cursiva oro rosa. */
-  title: string;
-  text: string;
-  cta: string;
-  href: string;
-  image: ImageMetadata;
-  /** "plum" = fondo ciruela, "blush" = fondo rosado claro */
-  tone: "plum" | "blush";
-  external?: boolean;
-}
-
-/** Carrusel principal (rota solo cada 6 segundos). */
-export const slides: Slide[] = [
+/**
+ * Portadas: el carrusel con el que abre el inicio (rotan cada 6 s).
+ * Imágenes de 2048 × 768 px en src/assets/portada/. En celular se recortan
+ * al centro (4:3), así que el texto debe ir en la zona central.
+ * Para agregar, quitar o reordenar portadas, edita esta lista.
+ * Las fuentes editables de las portadas 2 y 3 están en brand/portadas-fuente/.
+ */
+export const portadas = [
   {
-    eyebrow: "Temporada navideña",
-    title: "Esta Navidad, *regala flores*",
-    text: "Arreglos hechos a mano para compartir en familia o sorprender a alguien especial. Programa tu entrega con anticipación.",
-    cta: "Ver arreglos",
+    image: portadaGraduacion,
+    // alt: describe lo que dice la imagen, para Google y lectores de pantalla
+    alt: "Florería M&S Detalles. Cada detalle dice lo que sientes. Inicio de campaña Graduación: celebra este gran logro con flores y hazlo aún más especial.",
+    href: "/tienda?cat=Eventos%20y%20ocasiones%20especiales",
+    // texto del botón que aparece debajo de la portada
+    cta: "Arreglos de graduación",
+  },
+  {
+    image: portadaServicios,
+    alt: "Florería M&S Detalles. Nuestros servicios: para cada momento. Ramos, arreglos florales y detalles para regalar. Delivery en Lima, pago con Yape y Plin.",
     href: "/tienda",
-    image: foto9,
-    tone: "plum",
+    cta: "Ver todos los arreglos",
   },
   {
-    eyebrow: "Para enamorar",
-    title: "Ramos que *dicen te quiero*",
-    text: "Rosas y flores de temporada en diseños que no se olvidan.",
-    cta: "Ver ramos de amor",
-    href: "/tienda?ocasion=Amor",
-    image: foto7,
-    tone: "blush",
-  },
-  {
-    eyebrow: "Pedido personalizado",
-    title: "Diseñado *a tu medida*",
-    text: "Cuéntanos la ocasión, los colores y tu presupuesto. Armamos el arreglo contigo.",
-    cta: "Escríbenos por WhatsApp",
-    href: waLink("¡Hola! Quisiera diseñar un arreglo personalizado 🌷"),
-    image: foto11,
-    tone: "plum",
-    external: true,
+    image: portadaFunebres,
+    alt: "Florería M&S Detalles. Condolencias: arreglos fúnebres. Acompañamos tus momentos difíciles con respeto y elegancia. Coronas y arreglos, entrega en Lima.",
+    href: "/tienda?cat=Condolencias",
+    cta: "Arreglos de condolencias",
   },
 ];
-
-/** Banners grandes por categoría (debajo de "Compra por ocasión"). */
-export const categoryBanners = [
-  {
-    eyebrow: "Condolencias",
-    title: "Arreglos para *despedir con amor*",
-    text: "Coronas y arreglos fúnebres con entrega en Lima.",
-    cta: "Ver arreglos",
-    href: "/tienda?ocasion=Condolencias",
-    image: foto1,
-  },
-  {
-    eyebrow: "Cumpleaños",
-    title: "Celebra su día *con flores*",
-    text: "Ramos alegres y llenos de color para sorprender.",
-    cta: "Ver arreglos",
-    href: "/tienda?ocasion=Cumplea%C3%B1os",
-    image: foto5,
-  },
-];
-
-/** Convierte *texto* en <em>texto</em> (para los títulos). */
-export const withEm = (s: string) =>
-  s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!).replace(/\*(.+?)\*/g, "<em>$1</em>");
