@@ -153,3 +153,47 @@
   .help__nav a { white-space: nowrap; }
   .help__body { padding: 24px 20px; border-radius: var(--radius); }
 }
+
+/* ============================================================
+   Bienvenida de marca (primera visita de la sesión)
+   Línea de tiempo: el logo se dibuja en ~0,7 s y a los 0,82 s
+   el telón sube y deja ver la página, que ya cargó detrás.
+   ============================================================ */
+.intro { display: none; }
+html.intro-on .intro {
+  position: fixed; inset: 0; z-index: 200; display: grid; place-items: center;
+  background: var(--bg) url("/fondo-acuarela.webp") center / cover no-repeat;
+  animation: intro-out 560ms cubic-bezier(0.77, 0, 0.175, 1) 820ms forwards;
+  will-change: transform;
+}
+@keyframes intro-out {
+  to { transform: translateY(-100%); border-radius: 0 0 50% 50% / 0 0 90px 90px; visibility: hidden; }
+}
+.intro__logo { display: grid; justify-items: center; gap: 6px; color: var(--rose); animation: intro-logo-out 360ms ease-in 800ms forwards; }
+@keyframes intro-logo-out { to { opacity: 0; transform: translateY(-24px) scale(.97); } }
+.intro__word {
+  font-family: var(--serif); font-weight: 600; font-size: clamp(.95rem, 2.4vw, 1.25rem); text-transform: uppercase;
+  letter-spacing: .5em; margin-right: -.5em; line-height: 1;
+  opacity: 0; animation: intro-word 600ms var(--ease-out) 60ms forwards;
+}
+.intro__word--2 { animation-delay: 300ms; }
+@keyframes intro-word { from { opacity: 0; letter-spacing: .8em; margin-right: -.8em; } to { opacity: 1; } }
+/* El M&S se "dibuja" de izquierda a derecha, como un trazo */
+.intro__mono { display: block; clip-path: inset(0 100% 0 0); animation: intro-draw 640ms cubic-bezier(0.65, 0, 0.35, 1) 120ms forwards; }
+.intro__mono img { height: clamp(78px, 14vw, 120px); width: auto; }
+@keyframes intro-draw { to { clip-path: inset(0 0 0 0); } }
+.intro__divider { display: flex; align-items: center; gap: 10px; margin: 2px 0 4px; }
+.intro__divider i { width: clamp(36px, 7vw, 56px); height: 1px; background: currentColor; transform: scaleX(0); animation: intro-line 420ms var(--ease-out) 380ms forwards; }
+.intro__divider i:first-child { transform-origin: right; }
+.intro__divider i:last-child { transform-origin: left; }
+@keyframes intro-line { to { transform: scaleX(1); opacity: .6; } }
+.intro__divider svg { width: 13px; height: 13px; fill: #e8919f; transform: scale(0); animation: intro-heart 420ms cubic-bezier(0.34, 1.56, 0.64, 1) 480ms forwards; }
+@keyframes intro-heart { to { transform: scale(1); } }
+
+/* Con un toque o una tecla se cierra al instante */
+html.intro-on .intro.intro--skip { animation: intro-out 380ms cubic-bezier(0.32, 0.72, 0, 1) forwards; }
+.intro--skip .intro__logo { animation: intro-logo-out 200ms ease-in forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.intro-on .intro { display: none; }
+}

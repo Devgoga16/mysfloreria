@@ -355,15 +355,17 @@ button, .btn, .chip, .chip-btn, .round-btn, .cart-btn, .nav__toggle, .occasion {
 .reveal--d3 { transition-delay: 240ms; }
 html:not(.js) .reveal { opacity: 1; transform: none; }
 
-/* Hero: entrada escalonada al cargar */
-.hero__copy > *, .hero__art > * { animation: rise 900ms var(--ease-out) both; }
-.hero__copy > :nth-child(2) { animation-delay: 60ms; }
-.hero__copy > :nth-child(3) { animation-delay: 120ms; }
-.hero__copy > :nth-child(4) { animation-delay: 180ms; }
-.hero__copy > :nth-child(5) { animation-delay: 240ms; }
-.hero__art > :nth-child(2) { animation-delay: 200ms; }
-.hero__art > :nth-child(3) { animation-delay: 300ms; }
-.hero__art > :nth-child(4) { animation-delay: 420ms; }
+/* Hero: entrada escalonada al cargar (espera a que se abra la intro, si la hay) */
+:root { --intro-delay: 0ms; }
+html.intro-on { --intro-delay: 820ms; }
+.hero__copy > *, .hero__art > * { animation: rise 900ms var(--ease-out) var(--intro-delay) both; }
+.hero__copy > :nth-child(2) { animation-delay: calc(var(--intro-delay) + 60ms); }
+.hero__copy > :nth-child(3) { animation-delay: calc(var(--intro-delay) + 120ms); }
+.hero__copy > :nth-child(4) { animation-delay: calc(var(--intro-delay) + 180ms); }
+.hero__copy > :nth-child(5) { animation-delay: calc(var(--intro-delay) + 240ms); }
+.hero__art > :nth-child(2) { animation-delay: calc(var(--intro-delay) + 200ms); }
+.hero__art > :nth-child(3) { animation-delay: calc(var(--intro-delay) + 300ms); }
+.hero__art > :nth-child(4) { animation-delay: calc(var(--intro-delay) + 420ms); }
 @keyframes rise { from { opacity: 0; transform: translateY(20px); } }
 
 /* ---------- Hover solo con mouse ---------- */

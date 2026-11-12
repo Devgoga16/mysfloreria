@@ -5,6 +5,7 @@ import "../styles/pages.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import ShopOverlays from "../components/ShopOverlays.astro";
+import Intro from "../components/Intro.astro";
 import { waLink } from "../data/site";
 
 interface Props {
@@ -25,7 +26,22 @@ const ogImage = new URL("/logo-completo.png", Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
     <meta name="theme-color" content="#4b2632" />
     <meta name="color-scheme" content="light" />
-    <script is:inline>document.documentElement.classList.add("js")</script>
+    <script is:inline>
+      document.documentElement.classList.add("js");
+      // Bienvenida de marca: cada vez que se entra a la web o se recarga.
+      // No se muestra al navegar entre páginas de la propia web ni con "atrás",
+      // ni si el dispositivo pide reducir animaciones.
+      try {
+        var nav = performance.getEntriesByType("navigation")[0];
+        var type = nav ? nav.type : "navigate";
+        var fromSite = false;
+        try { fromSite = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) {}
+        var show = type === "reload" || (type === "navigate" && !fromSite);
+        if (show && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          document.documentElement.classList.add("intro-on");
+        }
+      } catch (e) {}
+    </script>
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta property="og:title" content={title} />
@@ -43,6 +59,7 @@ const ogImage = new URL("/logo-completo.png", Astro.site);
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500&family=Jost:wght@400;500&display=swap" rel="stylesheet" />
   </head>
   <body>
+    <Intro />
     <Header />
     <main><slot /></main>
     <Footer />

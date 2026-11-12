@@ -1,0 +1,41 @@
+---
+// Bienvenida de marca: solo la primera vez de cada visita, dura menos de 1 s,
+// no espera a que cargue la página y se cierra con cualquier toque o tecla.
+// La decisión de mostrarla se toma en <head> (Base.astro) antes de pintar,
+// así nunca parpadea. Toda la animación es CSS: si el JavaScript falla, igual se va sola.
+---
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro__logo">
+    <span class="intro__word">Florería</span>
+    <span class="intro__mono"><img src="/logo-monograma.png" alt="" width="360" height="146" /></span>
+    <span class="intro__divider">
+      <i></i><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10.2A3.8 3.8 0 0 1 12 8.6a3.8 3.8 0 0 1 7 2.2C19 16.6 12 21 12 21z"/></svg><i></i>
+    </span>
+    <span class="intro__word intro__word--2">Detalles</span>
+  </div>
+</div>
+
+<script>
+  const intro = document.getElementById("intro");
+  if (intro && document.documentElement.classList.contains("intro-on")) {
+    const done = () => intro.remove();
+    // Se quita del DOM al terminar la salida
+    intro.addEventListener("animationend", (e) => {
+      if (e.target === intro) done();
+    });
+    // Cualquier interacción la cierra al instante
+    const skip = () => {
+      intro.classList.add("intro--skip");
+      document.documentElement.style.setProperty("--intro-delay", "0ms");
+      off();
+      setTimeout(done, 450); // la salida rápida dura 380 ms
+    };
+    const events = ["pointerdown", "keydown", "wheel", "touchstart"] as const;
+    const off = () => events.forEach((ev) => window.removeEventListener(ev, skip));
+    events.forEach((ev) => window.addEventListener(ev, skip, { passive: true, once: true }));
+    // Respaldo por si no llega animationend (p. ej. pestaña en segundo plano)
+    setTimeout(done, 2500);
+  } else {
+    intro?.remove();
+  }
+</script>
