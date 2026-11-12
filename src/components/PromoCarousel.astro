@@ -1,0 +1,109 @@
+---
+// Carrusel de promociones: se desliza con el dedo, con flechas y puntos,
+// y avanza solo (se pausa al pasar el mouse, al enfocarlo o si la pestaña no está visible).
+import { Image } from "astro:assets";
+import Icon from "./Icon.astro";
+import { slides, withEm } from "../data/banners";
+---
+<section class="container promo" aria-roledescription="carrusel" aria-label="Promociones">
+  <div class="promo__track" data-track>
+    {slides.map((s, i) => (
+      <article
+        class={`promo__slide promo__slide--${s.tone}`}
+        aria-roledescription="diapositiva"
+        aria-label={`${i + 1} de ${slides.length}`}
+      >
+        <div class="promo__copy">
+          <span class="eyebrow eyebrow--line">{s.eyebrow}</span>
+          <h2 class="promo__title" set:html={withEm(s.title)} />
+          <p>{s.text}</p>
+          <a
+            href={s.href}
+            class={`btn btn--lg ${s.tone === "plum" ? "btn--white" : "btn--primary"}`}
+            {...(s.external ? { target: "_blank", rel: "noopener" } : {})}
+          >
+            {s.cta} <Icon name="arrow" />
+          </a>
+        </div>
+        <div class="promo__media">
+          <Image src={s.image} alt="" width={900} loading={i === 0 ? "eager" : "lazy"} decoding="async" />
+        </div>
+      </article>
+    ))}
+  </div>
+  {slides.length > 1 && (
+    <div class="promo__controls">
+      <button class="round-btn" data-prev aria-label="Promoción anterior"><Icon name="arrow-left" /></button>
+      <div class="promo__dots" role="tablist" aria-label="Elegir promoción">
+        {slides.map((_, i) => (
+          <button role="tab" aria-selected={i === 0 ? "true" : "false"} aria-label={`Promoción ${i + 1}`} data-dot={i}><span></span></button>
+        ))}
+      </div>
+      <button class="round-btn round-btn--fill" data-next aria-label="Promoción siguiente"><Icon name="arrow" /></button>
+    </div>
+  )}
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".promo").forEach((root) => {
+    const track = root.querySelector<HTMLElement>("[data-track]")!;
+    const slides = [...track.children] as HTMLElement[];
+    const dots = [...root.querySelectorAll<HTMLButtonElement>("[data-dot]")];
+    if (slides.length < 2) return;
+    let index = 0;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const go = (i: number) => {
+      index = (i + slides.length) % slides.length;
+      track.scrollTo({ left: slides[index].offsetLeft - track.offsetLeft, behavior: reduce ? "auto" : "smooth" });
+    };
+
+    // El punto activo sigue a la diapositiva visible (también al deslizar con el dedo)
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          index = slides.indexOf(e.target as HTMLElement);
+          dots.forEach((d, k) => {
+            d.setAttribute("aria-selected", String(k === index));
+            d.classList.toggle("is-active", k === index);
+          });
+          restartProgress();
+        }),
+      { root: track, threshold: 0.6 },
+    );
+    slides.forEach((s) => io.observe(s));
+
+    root.querySelector("[data-prev]")!.addEventListener("click", () => go(index - 1));
+    root.querySelector("[data-next]")!.addEventListener("click", () => go(index + 1));
+    dots.forEach((d, k) => d.addEventListener("click", () => go(k)));
+
+    // Avance automático
+    const DELAY = 6000;
+    let timer = 0;
+    let paused = reduce;
+    const schedule = () => {
+      clearTimeout(timer);
+      if (!paused && !document.hidden) timer = window.setTimeout(() => go(index + 1), DELAY);
+    };
+    function restartProgress() {
+      root.style.setProperty("--delay", `${DELAY}ms`);
+      root.classList.remove("is-running");
+      void root.offsetWidth;
+      if (!paused) root.classList.add("is-running");
+      schedule();
+    }
+    const pause = (p: boolean) => {
+      paused = p || reduce;
+      root.classList.toggle("is-paused", paused);
+      restartProgress();
+    };
+    root.addEventListener("mouseenter", () => pause(true));
+    root.addEventListener("mouseleave", () => pause(false));
+    root.addEventListener("focusin", () => pause(true));
+    root.addEventListener("focusout", () => pause(false));
+    track.addEventListener("pointerdown", () => pause(true), { passive: true });
+    document.addEventListener("visibilitychange", schedule);
+    restartProgress();
+  });
+</script>

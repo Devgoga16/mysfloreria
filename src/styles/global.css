@@ -141,7 +141,7 @@ button, .btn, .chip, .chip-btn, .round-btn, .cart-btn, .nav__toggle, .occasion {
 
 .header {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(252, 239, 237, .78); backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px);
+  background: var(--bg);
   border-bottom: 1px solid transparent; transition: border-color 250ms ease, box-shadow 250ms ease;
 }
 .header.is-scrolled { border-color: var(--line); box-shadow: 0 6px 24px -18px rgba(75, 38, 50, .5); }

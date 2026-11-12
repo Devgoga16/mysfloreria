@@ -1,28 +1,56 @@
-// Interfaz de la tienda en el navegador: tarjetas, detalle, carrito y checkout.
+// Interfaz de la tienda en el navegador: tarjetas, carrito, favoritos, buscador y checkout.
 import {
   getConfig, getProducts, createCheckout, UtrackerError,
-  soles, priceLabel, prepLabel, type Product,
+  soles, priceLabel, prepLabel, isComplement, productUrl, type Product,
 } from "./utracker";
 import { cart, type CartLine } from "./cart";
+import { favs } from "./favs";
 import { waLink } from "../data/site";
 
 export const esc = (s: unknown) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+
+export const norm = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 
 const $ = <T extends HTMLElement = HTMLElement>(sel: string, root: ParentNode = document) =>
   root.querySelector(sel) as T;
 
 let canBuy = true;
 let productMap = new Map<string, Product>();
+let allProducts: Product[] = [];
+
+export const canBuyOnline = () => canBuy;
+export const getProduct = (id: string) => productMap.get(id);
 
 export async function loadCatalog(fresh = false) {
   const [{ store }, data] = await Promise.all([getConfig(), getProducts(fresh)]);
   canBuy = store.acceptsOnlineOrders;
+  allProducts = data.products;
   productMap = new Map(data.products.map((p) => [p.id, p]));
   syncCart();
+  favs.prune(new Set(productMap.keys()));
   document.documentElement.classList.toggle("no-online-orders", !canBuy);
+  renderCart();
+  renderFavs();
   return data;
 }
+
+/** Complementos disponibles que aún no están en el carrito. */
+export function availableComplements(limit = 6) {
+  const inCart = new Set(cart.get().map((l) => l.productId));
+  return allProducts.filter((p) => isComplement(p) && p.inStock && !inCart.has(p.id)).slice(0, limit);
+}
+
+// ---------- Íconos ----------
+const svg = (d: string) => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+export const ICON = {
+  plus: svg(`<path d="M12 5v14M5 12h14"/>`),
+  options: svg(`<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>`),
+  chat: svg(`<path d="M20 11.5a8 8 0 0 1-11.7 7.1L4 20l1.4-4.1A8 8 0 1 1 20 11.5z"/>`),
+  heart: svg(`<path d="M12 20.5s-7.5-4.6-7.5-10.6A4.2 4.2 0 0 1 12 7.5a4.2 4.2 0 0 1 7.5 2.4c0 6-7.5 10.6-7.5 10.6z"/>`),
+  check: svg(`<path d="m5 12.5 4.5 4.5L19 7.5"/>`),
+  close: svg(`<path d="M6 6l12 12M18 6 6 18"/>`),
+};
 
 // ---------- Tarjeta de producto ----------
 function badges(p: Product) {
@@ -34,35 +62,48 @@ function badges(p: Product) {
   return out.length ? `<div class="badges">${out.join("")}</div>` : "";
 }
 
-const svg = (d: string) =>
-  `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
-const ICON_PLUS = svg(`<path d="M12 5v14M5 12h14"/>`);
-const ICON_OPTIONS = svg(`<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>`);
-const ICON_CHAT = svg(`<path d="M20 11.5a8 8 0 0 1-11.7 7.1L4 20l1.4-4.1A8 8 0 1 1 20 11.5z"/>`);
+export const favButton = (p: Product, extra = "") => {
+  const on = favs.has(p.id);
+  return `<button class="fav-btn${on ? " is-on" : ""}${extra}" data-fav="${esc(p.id)}" aria-pressed="${on}" aria-label="${on ? "Quitar de" : "Agregar a"} favoritos: ${esc(p.name)}">${ICON.heart}</button>`;
+};
 
 export function productCard(p: Product) {
   const id = esc(p.id);
+  const url = productUrl(p);
   const action =
     !canBuy || !p.inStock
-      ? `<a class="product__quick" href="${waLink(`¡Hola! Me interesa "${p.name}" 🌸`)}" target="_blank" rel="noopener" aria-label="Consultar ${esc(p.name)} por WhatsApp">${ICON_CHAT}<span>Consultar</span></a>`
+      ? `<a class="product__quick" href="${waLink(`¡Hola! Me interesa "${p.name}" 🌸`)}" target="_blank" rel="noopener" aria-label="Consultar ${esc(p.name)} por WhatsApp">${ICON.chat}<span>Consultar</span></a>`
       : p.variants.length > 1
-        ? `<button class="product__quick" data-open="${id}" aria-label="Elegir opción de ${esc(p.name)}">${ICON_OPTIONS}<span>Elegir</span></button>`
-        : `<button class="product__quick" data-add="${id}" aria-label="Agregar ${esc(p.name)} al carrito">${ICON_PLUS}<span>Agregar</span></button>`;
+        ? `<a class="product__quick" href="${url}" aria-label="Elegir opción de ${esc(p.name)}">${ICON.options}<span>Elegir</span></a>`
+        : `<button class="product__quick" data-add="${id}" aria-label="Agregar ${esc(p.name)} al carrito">${ICON.plus}<span>Agregar</span></button>`;
+  const second = p.images[1];
   return `
-    <article class="product${p.inStock ? "" : " is-out"}">
+    <article class="product${p.inStock ? "" : " is-out"}${second ? " has-alt" : ""}">
       <div class="product__media">
-        <button class="product__img" data-open="${id}" tabindex="-1" aria-hidden="true">
+        <a class="product__img" href="${url}" tabindex="-1" aria-hidden="true">
           <img src="${esc(p.images[0] ?? "/logo-completo.png")}" alt="" loading="lazy" decoding="async" />
-        </button>
+          ${second ? `<img class="product__alt" src="${esc(second)}" alt="" loading="lazy" decoding="async" />` : ""}
+        </a>
         ${badges(p)}
+        ${favButton(p)}
         ${action}
       </div>
-      <button class="product__info" data-open="${id}">
+      <a class="product__info" href="${url}">
         <span class="product__cat">${esc(p.category)}</span>
         <h3>${esc(p.name)}</h3>
         <span class="product__price">${priceLabel(p)}</span>
-      </button>
+      </a>
     </article>`;
+}
+
+/** Tarjeta compacta para complementos (carrito y página de producto). */
+export function miniCard(p: Product) {
+  return `
+    <li class="mini">
+      <img src="${esc(p.images[0] ?? "/logo-completo.png")}" alt="" loading="lazy" />
+      <div class="mini__info"><strong>${esc(p.name)}</strong><span>${soles(p.price)}</span></div>
+      <button class="mini__add" data-add="${esc(p.id)}" aria-label="Agregar ${esc(p.name)}">${ICON.plus}</button>
+    </li>`;
 }
 
 export function renderProducts(el: HTMLElement, products: Product[]) {
@@ -88,7 +129,7 @@ export function renderError(el: HTMLElement, err: unknown, retry: () => void) {
   el.querySelector("button")!.addEventListener("click", retry);
 }
 
-// ---------- Toast ----------
+// ---------- Aviso ----------
 let toastTimer: number;
 export function toast(msg: string) {
   const t = $("#toast");
@@ -98,7 +139,7 @@ export function toast(msg: string) {
   toastTimer = window.setTimeout(() => t.classList.remove("is-visible"), 2600);
 }
 
-function addToCart(p: Product, variant: string | undefined, quantity: number) {
+export function addToCart(p: Product, variant: string | undefined, quantity: number, quiet = false) {
   const v = p.variants.find((x) => x.name === variant);
   const ok = cart.add({
     productId: p.id,
@@ -108,92 +149,41 @@ function addToCart(p: Product, variant: string | undefined, quantity: number) {
     unitPrice: v?.price ?? p.price,
     quantity,
   });
-  toast(ok ? `“${p.name}” se agregó al carrito` : "Llegaste al máximo de 50 productos distintos por pedido.");
-  if (ok) bumpCartButton();
+  if (!quiet || !ok) toast(ok ? `“${p.name}” se agregó al carrito` : "Llegaste al máximo de 50 productos distintos por pedido.");
+  if (ok) bump(".cart-btn");
+  return ok;
 }
 
-/** Pequeño rebote del ícono del carrito para confirmar que se agregó. */
-function bumpCartButton() {
-  document.querySelectorAll<HTMLElement>(".cart-btn").forEach((b) => {
+/** Pequeño rebote de un ícono de la cabecera para confirmar la acción. */
+function bump(sel: string) {
+  document.querySelectorAll<HTMLElement>(sel).forEach((b) => {
     b.classList.remove("is-bumped");
-    void b.offsetWidth; // reinicia la animación si se agrega varias veces seguidas
+    void b.offsetWidth; // reinicia la animación si se repite seguido
     b.classList.add("is-bumped");
   });
 }
 
-// ---------- Detalle (modal) ----------
-function openProduct(p: Product) {
-  const dlg = $<HTMLDialogElement>("#product-modal");
-  const body = $(".modal__body", dlg);
-  const hasVariants = p.variants.length > 0;
-  const advance =
-    p.requiresAdvance && p.advanceValue
-      ? p.advanceType === "percent"
-        ? `Se paga un adelanto del ${p.advanceValue}% al confirmar el pedido.`
-        : `Se paga un adelanto de ${soles(p.advanceValue)} al confirmar el pedido.`
-      : "";
-
-  body.innerHTML = `
-    <div class="modal__img"><img src="${esc(p.images[0] ?? "/logo-completo.png")}" alt="${esc(p.name)}" /></div>
-    <div class="modal__info">
-      <span class="eyebrow">${esc(p.category)}</span>
-      <h2 class="title">${esc(p.name)}</h2>
-      <p class="modal__price" data-price>${priceLabel(p)}</p>
-      <p class="modal__desc">${esc(p.description)}</p>
-      ${
-        hasVariants
-          ? `<fieldset class="variants"><legend>Elige una opción</legend>${p.variants
-              .map((v, i) => `<label><input type="radio" name="variant" value="${esc(v.name)}" ${i === 0 ? "checked" : ""}/><span>${esc(v.name)}<small>${soles(v.price)}</small></span></label>`)
-              .join("")}</fieldset>`
-          : ""
-      }
-      <ul class="modal__notes">
-        ${p.pricingMode === "quoted" ? `<li>Precio referencial: el monto final se coordina según el diseño.</li>` : ""}
-        ${p.preparationDays > 0 ? `<li>${prepLabel(p.preparationDays)}: elige la fecha de entrega al pagar.</li>` : ""}
-        ${advance ? `<li>${advance}</li>` : ""}
-        ${p.inStock && p.stock !== null && p.stock <= 5 ? `<li>¡Quedan solo ${p.stock}!</li>` : ""}
-      </ul>
-      ${
-        canBuy && p.inStock
-          ? `<div class="modal__buy">
-               <div class="qty"><button data-q="-1" aria-label="Menos">−</button><input type="number" min="1" max="99" value="1" aria-label="Cantidad"/><button data-q="1" aria-label="Más">+</button></div>
-               <button class="btn btn--primary" data-modal-add>Agregar al carrito</button>
-             </div>`
-          : `<a class="btn btn--primary" href="${waLink(`¡Hola! Me interesa "${p.name}" 🌸`)}" target="_blank" rel="noopener">${p.inStock ? "Pedir por WhatsApp" : "Agotado · Consultar por WhatsApp"}</a>`
-      }
-    </div>`;
-
-  const qtyInput = body.querySelector<HTMLInputElement>(".qty input");
-  body.querySelectorAll<HTMLButtonElement>("[data-q]").forEach((b) =>
-    b.addEventListener("click", () => {
-      qtyInput!.value = String(Math.min(99, Math.max(1, Number(qtyInput!.value) + Number(b.dataset.q))));
-    }),
-  );
-  body.querySelectorAll<HTMLInputElement>('input[name="variant"]').forEach((r) =>
-    r.addEventListener("change", () => {
-      const v = p.variants.find((x) => x.name === r.value)!;
-      $("[data-price]", body).textContent = soles(v.price);
-    }),
-  );
-  if (hasVariants) $("[data-price]", body).textContent = soles(p.variants[0].price);
-
-  body.querySelector("[data-modal-add]")?.addEventListener("click", () => {
-    const variant = body.querySelector<HTMLInputElement>('input[name="variant"]:checked')?.value;
-    addToCart(p, variant, Math.max(1, Number(qtyInput!.value) || 1));
-    dlg.close();
+function toggleFav(id: string) {
+  const p = productMap.get(id);
+  const on = favs.toggle(id);
+  document.querySelectorAll<HTMLButtonElement>(`[data-fav="${CSS.escape(id)}"]`).forEach((b) => {
+    b.classList.toggle("is-on", on);
+    b.setAttribute("aria-pressed", String(on));
+    if (p) b.setAttribute("aria-label", `${on ? "Quitar de" : "Agregar a"} favoritos: ${p.name}`);
   });
-
-  dlg.showModal();
+  if (on) bump(".fav-head");
+  toast(on ? "Guardado en tus favoritos ♡" : "Quitado de tus favoritos");
 }
 
-// ---------- Carrito (panel lateral) ----------
+// ---------- Paneles laterales (carrito y favoritos) ----------
 type Step = "cart" | "confirm" | "waiting";
 let step: Step = "cart";
 let pendingUrl = "";
 let checkoutOrigin = "";
 
 function renderCart() {
-  const panel = $("#cart");
+  const panel = document.getElementById("cart");
+  if (!panel) return;
   const lines = cart.get();
   document.querySelectorAll(".js-cart-count").forEach((el) => {
     el.textContent = String(cart.count());
@@ -201,38 +191,82 @@ function renderCart() {
   });
   if (step !== "cart") return;
 
-  const list = $(".cart__lines", panel);
-  const foot = $(".cart__foot", panel);
+  const list = $(".drawer__body", panel);
+  const foot = $(".drawer__foot", panel);
   $(".cart__msg", panel).hidden = true;
 
   if (!lines.length) {
-    list.innerHTML = `<div class="cart__empty"><p class="serif">Tu carrito está vacío</p><a href="/tienda" class="btn btn--pill">Ver arreglos <span class="btn__icon">↗</span></a></div>`;
+    list.innerHTML = `<div class="drawer__empty">${ICON.heart}<p class="serif">Tu carrito está vacío</p><span>Elige un arreglo y aparecerá aquí.</span><a href="/tienda" class="btn btn--primary">Ver arreglos</a></div>`;
     foot.innerHTML = "";
     return;
   }
 
-  list.innerHTML = lines
-    .map(
-      (l, i) => `
-      <li class="line">
-        <img src="${esc(l.image || "/logo-completo.png")}" alt="" />
-        <div>
-          <strong>${esc(l.name)}</strong>
-          ${l.variant ? `<small>${esc(l.variant)}</small>` : ""}
-          <span class="line__price">${soles(l.unitPrice * l.quantity)}</span>
-        </div>
-        <div class="qty qty--sm">
-          <button data-line="${i}" data-d="-1" aria-label="Menos">−</button>
-          <span>${l.quantity}</span>
-          <button data-line="${i}" data-d="1" aria-label="Más">+</button>
-        </div>
-      </li>`,
-    )
-    .join("");
+  const extras = availableComplements(4);
+  list.innerHTML = `
+    <ul class="lines">${lines
+      .map(
+        (l, i) => `
+        <li class="line">
+          <img src="${esc(l.image || "/logo-completo.png")}" alt="" />
+          <div class="line__info">
+            <strong>${esc(l.name)}</strong>
+            ${l.variant ? `<small>${esc(l.variant)}</small>` : ""}
+            <span class="line__price">${soles(l.unitPrice * l.quantity)}</span>
+          </div>
+          <div class="qty qty--sm">
+            <button data-line="${i}" data-d="-1" aria-label="${l.quantity === 1 ? "Quitar" : "Menos"}">−</button>
+            <span>${l.quantity}</span>
+            <button data-line="${i}" data-d="1" aria-label="Más">+</button>
+          </div>
+        </li>`,
+      )
+      .join("")}</ul>
+    ${
+      extras.length
+        ? `<div class="upsell"><p class="upsell__title">¿Le sumas un detalle?</p><ul class="minis">${extras.map(miniCard).join("")}</ul></div>`
+        : ""
+    }`;
   foot.innerHTML = `
     <div class="cart__total"><span>Subtotal estimado</span><strong>${soles(cart.subtotal())}</strong></div>
     <p class="cart__hint">El total final, el adelanto y el costo de delivery se confirman en el siguiente paso.</p>
     <button class="btn btn--primary btn--block" data-checkout>Ir a pagar</button>`;
+}
+
+function renderFavs() {
+  const ids = favs.get();
+  document.querySelectorAll(".js-fav-count").forEach((el) => {
+    el.textContent = String(ids.length);
+    el.toggleAttribute("hidden", ids.length === 0);
+  });
+  const panel = document.getElementById("favs");
+  if (!panel) return;
+  const body = $(".drawer__body", panel);
+  const items = ids.map((id) => productMap.get(id)).filter(Boolean) as Product[];
+  if (!items.length) {
+    body.innerHTML = `<div class="drawer__empty">${ICON.heart}<p class="serif">Aún no tienes favoritos</p><span>Toca el ♡ de cualquier arreglo para guardarlo aquí.</span><a href="/tienda" class="btn btn--primary">Explorar la tienda</a></div>`;
+    return;
+  }
+  body.innerHTML = `<ul class="lines">${items
+    .map(
+      (p) => `
+      <li class="line">
+        <a href="${productUrl(p)}"><img src="${esc(p.images[0] ?? "/logo-completo.png")}" alt="" /></a>
+        <a class="line__info" href="${productUrl(p)}">
+          <strong>${esc(p.name)}</strong>
+          <small>${esc(p.category)}</small>
+          <span class="line__price">${priceLabel(p)}</span>
+        </a>
+        <div class="line__actions">
+          ${
+            canBuy && p.inStock && p.variants.length <= 1
+              ? `<button class="round-btn round-btn--sm round-btn--fill" data-add="${esc(p.id)}" aria-label="Agregar ${esc(p.name)} al carrito">${ICON.plus}</button>`
+              : `<a class="round-btn round-btn--sm" href="${productUrl(p)}" aria-label="Ver ${esc(p.name)}">${ICON.options}</a>`
+          }
+          <button class="round-btn round-btn--sm" data-fav="${esc(p.id)}" aria-label="Quitar de favoritos: ${esc(p.name)}">${ICON.close}</button>
+        </div>
+      </li>`,
+    )
+    .join("")}</ul>`;
 }
 
 function showMsg(text: string) {
@@ -272,7 +306,7 @@ async function startCheckout(btn: HTMLButtonElement) {
     checkoutOrigin = new URL(s.checkoutUrl).origin;
     step = "confirm";
     const owesLess = s.advanceDue > 0 && s.advanceDue < s.totalAmount;
-    $("#cart .cart__foot").innerHTML = `
+    $("#cart .drawer__foot").innerHTML = `
       <div class="cart__total"><span>Total del pedido</span><strong>${soles(s.totalAmount)}</strong></div>
       ${owesLess ? `<div class="cart__total cart__total--advance"><span>Adelanto a pagar hoy</span><strong>${soles(s.advanceDue)}</strong></div>` : ""}
       <p class="cart__hint">Se abrirá una ventana segura de uTracker para tus datos, la entrega y el comprobante de pago. Tienes 1 hora para completarlo.</p>
@@ -299,7 +333,7 @@ function goToPayment() {
     return;
   }
   step = "waiting";
-  $("#cart .cart__foot").innerHTML = `
+  $("#cart .drawer__foot").innerHTML = `
     <div class="cart__waiting">
       <span class="spinner"></span>
       <p>Completa tu pedido en la ventana de pago.<br/>Cuando termines, volverás aquí automáticamente.</p>
@@ -314,48 +348,126 @@ function backToCart() {
 }
 
 let lastFocus: HTMLElement | null = null;
+let openDrawerId: string | null = null;
 
-export function openCart() {
-  const panel = $("#cart");
-  if (panel.classList.contains("is-open")) return;
+export function openDrawer(id: "cart" | "favs") {
+  if (openDrawerId === id) return;
+  if (openDrawerId) closeDrawer(false);
+  const panel = document.getElementById(id)!;
   lastFocus = document.activeElement as HTMLElement | null;
+  openDrawerId = id;
   panel.classList.add("is-open");
-  $("#cart-overlay").classList.add("is-open");
+  $("#drawer-overlay").classList.add("is-open");
   document.body.classList.add("no-scroll");
   // foco dentro del panel para teclado y lectores de pantalla
-  requestAnimationFrame(() => $<HTMLButtonElement>("#cart [data-cart-close]").focus({ preventScroll: true }));
+  requestAnimationFrame(() => $<HTMLButtonElement>(`#${id} [data-drawer-close]`).focus({ preventScroll: true }));
 }
-function closeCart() {
-  const panel = $("#cart");
-  if (!panel.classList.contains("is-open")) return;
-  panel.classList.remove("is-open");
-  $("#cart-overlay").classList.remove("is-open");
+export const openCart = () => openDrawer("cart");
+
+function closeDrawer(restoreFocus = true) {
+  if (!openDrawerId) return;
+  document.getElementById(openDrawerId)!.classList.remove("is-open");
+  $("#drawer-overlay").classList.remove("is-open");
   document.body.classList.remove("no-scroll");
-  lastFocus?.focus({ preventScroll: true });
+  openDrawerId = null;
+  if (restoreFocus) lastFocus?.focus({ preventScroll: true });
+}
+
+// ---------- Buscador de la cabecera ----------
+function initSearch() {
+  document.querySelectorAll<HTMLFormElement>("[data-search]").forEach((form) => {
+    const input = form.querySelector("input")!;
+    const box = form.querySelector<HTMLElement>(".search-results")!;
+    let timer: number;
+
+    const close = () => {
+      box.hidden = true;
+      input.setAttribute("aria-expanded", "false");
+    };
+    const render = async () => {
+      const term = norm(input.value.trim());
+      if (term.length < 2) return close();
+      await loadCatalog().catch(() => {});
+      const words = term.split(/\s+/);
+      const hits = allProducts
+        .filter((p) => {
+          const hay = norm(`${p.name} ${p.category} ${p.description}`);
+          return words.every((w) => hay.includes(w));
+        })
+        .sort((a, b) => Number(isComplement(a)) - Number(isComplement(b)) || Number(b.inStock) - Number(a.inStock));
+      box.innerHTML = hits.length
+        ? `<ul>${hits
+            .slice(0, 6)
+            .map(
+              (p) => `<li><a href="${productUrl(p)}">
+                <img src="${esc(p.images[0] ?? "/logo-completo.png")}" alt="" />
+                <span><strong>${esc(p.name)}</strong><small>${esc(p.category)}</small></span>
+                <em>${priceLabel(p)}</em></a></li>`,
+            )
+            .join("")}</ul>
+           <a class="search-results__all" href="/tienda?q=${encodeURIComponent(input.value.trim())}">Ver los ${hits.length} resultados</a>`
+        : `<p class="search-results__none">No encontramos “${esc(input.value.trim())}”.<br/><a href="${waLink(`¡Hola! Estoy buscando: ${input.value.trim()} 🌸`)}" target="_blank" rel="noopener">Pregúntanos por WhatsApp</a></p>`;
+      box.hidden = false;
+      input.setAttribute("aria-expanded", "true");
+    };
+
+    input.addEventListener("input", () => {
+      clearTimeout(timer);
+      timer = window.setTimeout(render, 120);
+    });
+    input.addEventListener("focus", () => input.value.trim().length >= 2 && render());
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { close(); input.blur(); }
+      if (e.key === "ArrowDown" && !box.hidden) {
+        e.preventDefault();
+        box.querySelector<HTMLAnchorElement>("a")?.focus();
+      }
+    });
+    box.addEventListener("keydown", (e) => {
+      const links = [...box.querySelectorAll<HTMLAnchorElement>("a")];
+      const i = links.indexOf(document.activeElement as HTMLAnchorElement);
+      if (e.key === "ArrowDown") { e.preventDefault(); links[Math.min(i + 1, links.length - 1)]?.focus(); }
+      if (e.key === "ArrowUp") { e.preventDefault(); (i <= 0 ? input : links[i - 1]).focus(); }
+      if (e.key === "Escape") { close(); input.focus(); }
+    });
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const q = input.value.trim();
+      location.href = q ? `/tienda?q=${encodeURIComponent(q)}` : "/tienda";
+    });
+    document.addEventListener("click", (e) => {
+      if (!form.contains(e.target as Node)) close();
+    });
+  });
 }
 
 // ---------- Inicio (una vez por página) ----------
 export function initShopUI() {
   cart.subscribe(renderCart);
-  loadCatalog().catch(() => {}); // precarga para modal / botones
+  favs.subscribe(renderFavs);
+  loadCatalog().catch(() => {}); // precarga para botones, favoritos y buscador
+  initSearch();
 
   document.addEventListener("click", async (e) => {
     const t = (e.target as HTMLElement).closest<HTMLElement>(
-      "[data-open],[data-add],[data-cart-open],[data-cart-close],[data-line],[data-checkout],[data-go],[data-reopen],[data-back]",
+      "[data-add],[data-fav],[data-drawer-open],[data-drawer-close],[data-line],[data-checkout],[data-go],[data-reopen],[data-back]",
     );
     if (!t) return;
 
-    if (t.dataset.open || t.dataset.add) {
-      await loadCatalog();
-      const p = productMap.get((t.dataset.open || t.dataset.add)!);
-      if (!p) return;
-      if (t.dataset.add) addToCart(p, p.variants[0]?.name, 1);
-      else openProduct(p);
-    } else if (t.hasAttribute("data-cart-open")) {
+    if (t.dataset.add) {
       e.preventDefault();
-      openCart();
-    } else if (t.hasAttribute("data-cart-close")) {
-      closeCart();
+      await loadCatalog();
+      const p = productMap.get(t.dataset.add);
+      if (p) addToCart(p, p.variants[0]?.name, 1);
+    } else if (t.dataset.fav) {
+      e.preventDefault();
+      await loadCatalog().catch(() => {});
+      toggleFav(t.dataset.fav);
+    } else if (t.dataset.drawerOpen) {
+      e.preventDefault();
+      openDrawer(t.dataset.drawerOpen as "cart" | "favs");
+    } else if (t.hasAttribute("data-drawer-close")) {
+      closeDrawer();
     } else if (t.dataset.line) {
       const l = cart.get()[Number(t.dataset.line)];
       cart.setQty(l.productId, l.variant, l.quantity + Number(t.dataset.d));
@@ -367,13 +479,7 @@ export function initShopUI() {
       backToCart();
     }
   });
-
-  // Cerrar modal al hacer clic fuera
-  const dlg = $<HTMLDialogElement>("#product-modal");
-  dlg.addEventListener("click", (e) => {
-    if (e.target === dlg || (e.target as HTMLElement).closest("[data-modal-close]")) dlg.close();
-  });
-  document.addEventListener("keydown", (e) => e.key === "Escape" && closeCart());
+  document.addEventListener("keydown", (e) => e.key === "Escape" && closeDrawer());
 
   // Aviso de uTracker cuando el pedido se completó
   window.addEventListener("message", (e) => {
@@ -388,4 +494,3 @@ export function initShopUI() {
     }
   });
 }
-

@@ -1,21 +1,31 @@
 ---
-// Carrito lateral, detalle de producto y aviso. Va una vez en el layout.
+// Paneles laterales (carrito y favoritos) y aviso. Van una vez en el layout.
 ---
-<div class="cart-overlay" id="cart-overlay" data-cart-close></div>
-<aside class="cart" id="cart" aria-label="Carrito de compras">
-  <header class="cart__head">
-    <h2 class="serif">Tu carrito</h2>
-    <button class="round-btn" data-cart-close aria-label="Cerrar carrito">✕</button>
+<div class="drawer-overlay" id="drawer-overlay" data-drawer-close></div>
+
+<aside class="drawer" id="cart" aria-label="Carrito de compras">
+  <header class="drawer__head">
+    <div>
+      <span class="eyebrow">Tu pedido</span>
+      <h2 class="serif">Carrito</h2>
+    </div>
+    <button class="round-btn" data-drawer-close aria-label="Cerrar carrito">✕</button>
   </header>
   <p class="cart__msg" role="alert" hidden></p>
-  <ul class="cart__lines"></ul>
-  <div class="cart__foot"></div>
+  <div class="drawer__body"></div>
+  <div class="drawer__foot"></div>
 </aside>
 
-<dialog class="modal" id="product-modal" aria-label="Detalle del producto">
-  <button class="round-btn modal__close" data-modal-close aria-label="Cerrar">✕</button>
-  <div class="modal__body"></div>
-</dialog>
+<aside class="drawer" id="favs" aria-label="Favoritos">
+  <header class="drawer__head">
+    <div>
+      <span class="eyebrow">Guardados</span>
+      <h2 class="serif">Favoritos</h2>
+    </div>
+    <button class="round-btn" data-drawer-close aria-label="Cerrar favoritos">✕</button>
+  </header>
+  <div class="drawer__body"></div>
+</aside>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

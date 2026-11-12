@@ -1,0 +1,37 @@
+---
+import Help from "../../layouts/Help.astro";
+import { site } from "../../data/site";
+---
+<Help
+  title="Política de privacidad"
+  heading="Política de <em>privacidad</em>"
+  intro="Cómo cuidamos la información que nos compartes."
+  updated="noviembre de 2026"
+>
+  <h2>1. Responsable</h2>
+  <p>Florería M&amp;S Detalles, con dirección en {site.direccion}, Lima, Perú, es responsable del tratamiento de los datos personales que nos brindas, conforme a la Ley N.° 29733, Ley de Protección de Datos Personales, y su reglamento.</p>
+
+  <h2>2. Qué datos usamos</h2>
+  <ul>
+    <li>Datos de contacto: nombre, teléfono y correo.</li>
+    <li>Datos de entrega: dirección, nombre y teléfono de quien recibe.</li>
+    <li>Datos del pedido: productos, fecha de entrega y comprobante de pago.</li>
+  </ul>
+  <p>Los datos de compra y el comprobante de pago se ingresan en la ventana segura de pago de nuestro sistema de pedidos; esta página web no los almacena.</p>
+
+  <h2>3. Para qué los usamos</h2>
+  <ul>
+    <li>Preparar, entregar y dar seguimiento a tu pedido.</li>
+    <li>Comunicarnos contigo sobre tu compra.</li>
+    <li>Atender consultas y reclamos.</li>
+  </ul>
+
+  <h2>4. Datos guardados en tu navegador</h2>
+  <p>Tu carrito y tus favoritos se guardan solo en tu navegador, para que no se pierdan al cambiar de página. Puedes borrarlos limpiando los datos de navegación.</p>
+
+  <h2>5. Con quién los compartimos</h2>
+  <p>Solo con los proveedores necesarios para procesar y entregar tu pedido. No vendemos tus datos.</p>
+
+  <h2>6. Tus derechos</h2>
+  <p>Puedes solicitar el acceso, la rectificación, la cancelación u oposición al uso de tus datos escribiéndonos a <a href={`mailto:${site.correo}`}>{site.correo}</a> o por WhatsApp al {site.celular}.</p>
+</Help>

@@ -27,17 +27,20 @@ muestra un aviso.
 |---|---|
 | WhatsApp, teléfonos, correo, dirección, horario, redes | `src/data/site.ts` |
 | Textos y fotos de la página de inicio | `src/pages/index.astro` |
+| Carrusel de promociones y banners por categoría | `src/data/banners.ts` |
+| Preguntas frecuentes, envíos, términos y privacidad | `src/pages/ayuda/` |
 | Productos, precios, stock, categorías | **En uTracker** (la web los lee en vivo) |
 | Logo | `brand/logomysv3.png` (original, no se publica) · `logo-monograma.png` (cabecera) · `logo-completo.png` (pie) · `favicon.png` |
 | Colores y tipografías | `src/styles/global.css` → `:root` |
+| Complementos (chocolates, peluches, globos…) | **En uTracker**: crea la categoría **"Complementos"** y sus productos. La web los ofrece solos en el producto y el carrito |
 
 ## Estructura
 
 ```
 src/
-  pages/        index (inicio) · tienda · gracias
+  pages/        index (inicio) · tienda · producto (?id=) · gracias
   layouts/      Base.astro (head, header, footer, carrito)
   components/   Header, Footer, ShopOverlays (carrito + detalle de producto)
-  lib/          utracker.ts (API) · cart.ts (carrito) · shop.ts (interfaz) · demo.ts
+  lib/          utracker.ts (API) · cart.ts (carrito) · favs.ts (favoritos) · shop.ts (interfaz) · demo.ts
   styles/       global.css · shop.css
 ```

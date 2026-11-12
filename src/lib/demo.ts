@@ -2,7 +2,7 @@
 // Se usan solo cuando no hay PUBLIC_UTRACKER_KEY configurada.
 import type { Product, StoreConfig, Campaign } from "./utracker";
 
-const img = (id: string) => `https://images.unsplash.com/${id}?w=700&h=700&fit=crop&auto=format&q=75`;
+const img = (id: string) => `https://images.unsplash.com/${id}?w=900&h=1125&fit=crop&auto=format&q=75`;
 
 export const demoConfig: StoreConfig = {
   store: {
@@ -37,7 +37,7 @@ export const demoProducts: Product[] = [
   {
     ...base, id: "demo-1", name: "Dulce Rubor", category: "Ramos",
     description: "Rosas y peonías en tonos pastel, envueltas en papel kraft.",
-    price: 129, images: [img("photo-1563241527-3004b7be0ffd")],
+    price: 129, images: [img("photo-1563241527-3004b7be0ffd"), img("photo-1591886960571-74d43a9d4166"), img("photo-1582794543139-8ac9cb0f7b11")],
     variants: [
       { name: "Mediano", priceModifier: 0, price: 129 },
       { name: "Grande", priceModifier: 50, price: 179 },
@@ -65,7 +65,7 @@ export const demoProducts: Product[] = [
   {
     ...base, id: "demo-5", name: "Rosas Rojas Clásicas", category: "Rosas",
     description: "Rosas rojas premium. Elige la cantidad.",
-    price: 119, images: [img("photo-1494972308805-463bc619d34e")],
+    price: 119, images: [img("photo-1494972308805-463bc619d34e"), img("photo-1519378058457-4c29a0a2efac")],
     variants: [
       { name: "12 rosas", priceModifier: 0, price: 119 },
       { name: "24 rosas", priceModifier: 100, price: 219 },
@@ -91,6 +91,28 @@ export const demoProducts: Product[] = [
     price: 350, pricingMode: "quoted", images: [img("photo-1525310072745-f49212b5ac6d")], preparationDays: 1,
     attributes: [{ filter: "f-color", values: ["Blanco"] }, { filter: "f-ocasion", values: ["Condolencias"] }],
   },
+  ...[
+    { id: "demo-9", name: "Corazón de Flores", category: "Arreglos", price: 199, image: "photo-1526047932273-341f2a7631f9", desc: "Arreglo en forma de corazón con rosas y flores de colores.", ocasion: ["Amor"], color: ["Mixto"] },
+    { id: "demo-10", name: "Girasol Radiante", category: "Girasoles", price: 89, image: "photo-1470509037663-253afd7f0f51", desc: "Girasoles frescos que alegran cualquier día.", ocasion: ["Cumpleaños", "Agradecimiento"], color: ["Amarillo"] },
+    { id: "demo-11", name: "Campo de Girasoles", category: "Girasoles", price: 139, image: "photo-1455659817273-f96807779a8a", desc: "Ramo abundante de girasoles.", ocasion: ["Cumpleaños"], color: ["Amarillo"] },
+    { id: "demo-12", name: "Margaritas Blancas", category: "Ramos", price: 79, image: "photo-1606041008023-472dfb5e530f", desc: "Ramo sencillo y luminoso de margaritas.", ocasion: ["Agradecimiento", "Condolencias"], color: ["Blanco"] },
+    { id: "demo-13", name: "Tulipanes Bicolor", category: "Tulipanes", price: 169, image: "photo-1468327768560-75b778cbb551", desc: "Tulipanes blancos y fucsia en ramo.", ocasion: ["Amor", "Cumpleaños"], color: ["Rosado"] },
+    { id: "demo-14", name: "Pasión Roja", category: "Ramos", price: 149, image: "photo-1519378058457-4c29a0a2efac", desc: "Flores rojas intensas para una declaración de amor.", ocasion: ["Amor"], color: ["Rojo"] },
+  ].map((d): Product => ({
+    ...base, id: d.id, name: d.name, category: d.category, description: d.desc, price: d.price, images: [img(d.image)],
+    attributes: [{ filter: "f-color", values: d.color }, { filter: "f-ocasion", values: d.ocasion }],
+  })),
+  // Complementos: en uTracker basta con crear la categoría "Complementos".
+  ...[
+    { id: "demo-c1", name: "Bombones surtidos", description: "Caja de 12 bombones para acompañar tu arreglo.", price: 35, image: "photo-1481391319762-47dff72954d9" },
+    { id: "demo-c2", name: "Peluche osito", description: "Osito de peluche de 25 cm.", price: 45, image: "photo-1559454403-b8fb88521f11" },
+    { id: "demo-c3", name: "Globos de colores", description: "Set de 6 globos inflados con helio.", price: 30, image: "photo-1530103862676-de8c9debad1d" },
+    { id: "demo-c4", name: "Caja de regalo", description: "Caja decorada con lazo para presentar tu detalle.", price: 25, image: "photo-1549465220-1a8b9238cd48" },
+    { id: "demo-c5", name: "Espumante", description: "Botella de espumante de 750 ml.", price: 59, image: "photo-1547595628-c61a29f496f0" },
+  ].map((c): Product => ({
+    ...base, id: c.id, name: c.name, category: "Complementos", description: c.description,
+    price: c.price, images: [img(c.image)], requiresAdvance: false, attributes: [],
+  })),
 ];
 
 export const demoCampaigns: Campaign[] = [];

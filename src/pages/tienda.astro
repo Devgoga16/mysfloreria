@@ -37,12 +37,17 @@ import { waLink } from "../data/site";
     <div class="chips" id="categories" role="tablist" aria-label="Categorías"></div>
     <p class="shop__count" id="count"></p>
     <div class="shop__grid" id="grid"></div>
+    <div class="shop__more" id="more" hidden>
+      <p id="more-text"></p>
+      <div class="shop__progress"><span id="more-bar"></span></div>
+      <button class="btn btn--ghost btn--lg" id="more-btn">Ver más arreglos</button>
+    </div>
   </section>
 </Base>
 
 <script>
-  import { getConfig, getCampaigns, minPrice, soles, type Product } from "../lib/utracker";
-  import { loadCatalog, renderProducts, renderSkeleton, renderError, esc } from "../lib/shop";
+  import { getConfig, getCampaigns, minPrice, soles, isComplement, type Product } from "../lib/utracker";
+  import { loadCatalog, renderProducts, renderSkeleton, renderError, productCard, esc, norm } from "../lib/shop";
 
   const grid = document.getElementById("grid")!;
   const q = document.getElementById("q") as HTMLInputElement;
@@ -52,26 +57,44 @@ import { waLink } from "../data/site";
   const count = document.getElementById("count")!;
 
   let products: Product[] = [];
-  let category = "";
+  // "Ver más": se muestran de 12 en 12
+  const PAGE = 12;
+  let current: Product[] = [];
+  let shown = PAGE;
+  const more = document.getElementById("more")!;
+  function renderMore() {
+    more.hidden = current.length <= shown;
+    const visible = Math.min(shown, current.length);
+    document.getElementById("more-text")!.textContent = `Viendo ${visible} de ${current.length}`;
+    (document.getElementById("more-bar") as HTMLElement).style.width = `${(visible / Math.max(current.length, 1)) * 100}%`;
+  }
+  const params = new URLSearchParams(location.search);
+  // ?cat=Rosas (barra de categorías), ?q=rosas (buscador de la cabecera)
+  let category = params.get("cat") ?? "";
+  if (params.get("q")) q.value = params.get("q")!;
   const selected: Record<string, string> = {};
   // Viene de "Compra por ocasión": ?ocasion=Cumpleaños
-  let pendingOcasion = new URLSearchParams(location.search).get("ocasion") ?? "";
-
-  const norm = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+  let pendingOcasion = params.get("ocasion") ?? "";
 
   function apply() {
-    const term = norm(q.value.trim());
+    const words = norm(q.value.trim()).split(/\s+/).filter(Boolean);
     let list = products.filter((p) => {
       if (category && p.category !== category) return false;
-      if (term && !norm(`${p.name} ${p.description} ${p.category}`).includes(term)) return false;
+      // Los complementos solo aparecen en su categoría o al buscarlos
+      if (!category && !words.length && isComplement(p)) return false;
+      const hay = norm(`${p.name} ${p.description} ${p.category}`);
+      if (words.length && !words.every((w) => hay.includes(w))) return false;
       return Object.entries(selected).every(
         ([fid, val]) => !val || p.attributes.some((a) => a.filter === fid && a.values.includes(val)),
       );
     });
     if (sort.value) list = [...list].sort((a, b) => (minPrice(a) - minPrice(b)) * (sort.value === "asc" ? 1 : -1));
     else list = [...list].sort((a, b) => Number(b.inStock) - Number(a.inStock));
-    count.textContent = `${list.length} ${list.length === 1 ? "arreglo" : "arreglos"}`;
-    renderProducts(grid, list);
+    count.textContent = `${list.length} ${list.length === 1 ? "resultado" : "resultados"}${q.value.trim() ? ` para “${q.value.trim()}”` : ""}`;
+    current = list;
+    shown = PAGE;
+    renderProducts(grid, list.slice(0, shown));
+    renderMore();
   }
 
   function renderCategories(categories: string[]) {
@@ -88,7 +111,10 @@ import { waLink } from "../data/site";
       document.getElementById("offline-notice")!.hidden = config.store.acceptsOnlineOrders;
 
       const used = new Set(products.map((p) => p.category));
-      renderCategories(data.categories.filter((c) => used.has(c)));
+      const cats = data.categories.filter((c) => used.has(c));
+      // complementos al final de las categorías
+      const isExtra = (c: string) => products.some((p) => p.category === c && isComplement(p));
+      renderCategories([...cats.filter((c) => !isExtra(c)), ...cats.filter(isExtra)]);
       // Si la ocasión coincide con un valor de algún filtro, se usa ese filtro; si no, se busca por texto.
       if (pendingOcasion) {
         const target = norm(pendingOcasion);
@@ -134,6 +160,9 @@ import { waLink } from "../data/site";
     if (!b) return;
     category = b.dataset.cat || "";
     cats.querySelectorAll(".chip-btn").forEach((x) => x.classList.toggle("is-active", x === b));
+    const u = new URL(location.href);
+    if (category) u.searchParams.set("cat", category); else u.searchParams.delete("cat");
+    history.replaceState(null, "", u);
     apply();
   });
   filtersEl.addEventListener("change", (e) => {
@@ -151,6 +180,14 @@ import { waLink } from "../data/site";
     cats.querySelectorAll(".chip-btn").forEach((x, i) => x.classList.toggle("is-active", i === 0));
     history.replaceState(null, "", location.pathname);
     apply();
+  });
+  document.getElementById("more-btn")!.addEventListener("click", () => {
+    const from = shown;
+    shown += PAGE;
+    grid.insertAdjacentHTML("beforeend", current.slice(from, shown).map(productCard).join(""));
+    // lleva el foco al primer producto nuevo (teclado y lectores de pantalla)
+    grid.querySelectorAll<HTMLElement>(".product")[from]?.querySelector<HTMLElement>(".product__info")?.focus({ preventScroll: true });
+    renderMore();
   });
   q.addEventListener("input", apply);
   sort.addEventListener("change", apply);

@@ -1,0 +1,35 @@
+---
+import Help from "../../layouts/Help.astro";
+import { site, waLink } from "../../data/site";
+---
+<Help
+  title="Envíos y entregas"
+  heading="Envíos y <em>entregas</em>"
+  intro="Cómo, cuándo y dónde llevamos tus flores."
+  updated="noviembre de 2026"
+>
+  <h2>Cobertura</h2>
+  <p>Hacemos delivery a domicilio en Lima. Si no estás seguro de que lleguemos a tu distrito, <a href={waLink("¡Hola! ¿Hacen delivery a mi distrito? 🚚")} target="_blank" rel="noopener">escríbenos por WhatsApp</a> antes de comprar.</p>
+
+  <h2>Costo del delivery</h2>
+  <p>El costo depende del distrito de entrega y se muestra antes de confirmar el pago, en la ventana segura de pago.</p>
+
+  <h2>Fecha y horario</h2>
+  <ul>
+    <li>Eliges la fecha y la franja horaria de entrega al momento de pagar.</li>
+    <li>Algunos arreglos necesitan días de preparación; lo verás indicado en la página del producto (por ejemplo, “Listo en 2 días”).</li>
+    <li>En fechas especiales como San Valentín, Día de la Madre o Navidad te recomendamos pedir con anticipación.</li>
+  </ul>
+
+  <h2>Recojo en tienda</h2>
+  <p>También puedes recoger tu pedido en {site.direccion}. Elige la opción <strong>recojo en tienda</strong> al pagar. Nuestro horario es {site.horario.replace("Lun a Dom: ", "de lunes a domingo, ")}.</p>
+
+  <h2>Al momento de la entrega</h2>
+  <ul>
+    <li>Verifica que la dirección y el teléfono de quien recibe estén completos y correctos.</li>
+    <li>Si la persona no se encuentra, nos comunicaremos contigo para coordinar.</li>
+  </ul>
+
+  <h2>Cambios y reclamos</h2>
+  <p>Las flores son productos naturales y perecibles. Si tu pedido llegó con algún problema, escríbenos por WhatsApp al <a href={waLink("¡Hola! Tuve un problema con mi pedido")} target="_blank" rel="noopener">{site.celular}</a> con una foto y tu nombre, y lo revisaremos contigo.</p>
+</Help>

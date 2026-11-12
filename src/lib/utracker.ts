@@ -136,3 +136,15 @@ export const priceLabel = (p: Product) => {
 
 export const prepLabel = (days: number) =>
   days <= 0 ? "" : days === 1 ? "Listo en 1 día" : `Listo en ${days} días`;
+
+/**
+ * Complementos (chocolates, peluches, globos…): productos de una categoría llamada
+ * "Complementos" en uTracker, o con kind "complement". Se ofrecen como extra del regalo.
+ */
+export const isComplement = (p: Product) =>
+  p.kind === "complement" || /^complementos?$/i.test(p.category.trim());
+
+export const productUrl = (p: Pick<Product, "id">) => `/producto?id=${encodeURIComponent(p.id)}`;
+
+const FRANJAS: Record<string, string> = { morning: "Mañana", afternoon: "Tarde", night: "Noche", evening: "Noche" };
+export const franjaLabel = (f: string) => FRANJAS[f] ?? f;

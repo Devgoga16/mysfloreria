@@ -1,0 +1,256 @@
+---
+// Página de un producto: /producto?id=<id de uTracker>
+// Se arma en el navegador con los datos en vivo de la tienda.
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import { waLink } from "../data/site";
+---
+<Base title="Arreglo floral | M&S Detalles" description="Arreglos florales hechos a mano con delivery en Lima.">
+  <div class="container">
+    <nav class="crumbs" aria-label="Ruta">
+      <a href="/">Inicio</a><span>/</span><a href="/tienda">Tienda</a><span>/</span><a href="/tienda" id="crumb-cat">Arreglos</a>
+    </nav>
+
+    <article class="pdp" id="pdp" aria-busy="true">
+      <div class="pdp__gallery">
+        <div class="pdp__main pdp__skeleton"></div>
+      </div>
+      <div class="pdp__info">
+        <span class="pdp__skeleton pdp__skeleton--line"></span>
+        <span class="pdp__skeleton pdp__skeleton--title"></span>
+        <span class="pdp__skeleton pdp__skeleton--line"></span>
+      </div>
+    </article>
+
+    <section class="pdp-extra" id="pdp-complements" hidden>
+      <div class="section-head">
+        <div>
+          <span class="eyebrow eyebrow--line">Hazlo inolvidable</span>
+          <h2 class="title">Complementa tu <em>regalo</em></h2>
+        </div>
+        <p class="muted">Se entrega junto con tu arreglo.</p>
+      </div>
+      <ul class="minis minis--row" id="complements-list"></ul>
+    </section>
+
+    <section class="pdp-extra" id="pdp-related" hidden>
+      <div class="section-head">
+        <div>
+          <span class="eyebrow eyebrow--line">Más ideas</span>
+          <h2 class="title">También te puede <em>gustar</em></h2>
+        </div>
+        <a href="/tienda" class="link">Ver toda la tienda <Icon name="arrow" /></a>
+      </div>
+      <div class="catalog__track" id="related"></div>
+    </section>
+
+    <div class="pdp-missing" id="pdp-missing" hidden>
+      <p class="serif">No encontramos este arreglo</p>
+      <p class="muted">Puede que ya no esté disponible. Mira otras opciones o escríbenos.</p>
+      <div class="empty__actions">
+        <a class="btn btn--ghost" href="/tienda">Ver la tienda</a>
+        <a class="btn btn--primary" href={waLink("¡Hola! Busco un arreglo que vi en la web 🌸")} target="_blank" rel="noopener">Escríbenos</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de compra fija en el celular -->
+  <div class="buybar" id="buybar" hidden>
+    <div><strong id="buybar-name"></strong><span id="buybar-price"></span></div>
+    <button class="btn btn--primary" id="buybar-btn">Agregar</button>
+  </div>
+</Base>
+
+<script>
+  import {
+    loadCatalog, getProduct, canBuyOnline, addToCart, renderProducts, availableComplements,
+    miniCard, favButton, esc, openCart, toast,
+  } from "../lib/shop";
+  import { getConfig, soles, priceLabel, prepLabel, isComplement, franjaLabel, type Product } from "../lib/utracker";
+  import { waLink } from "../data/site";
+
+  const id = new URLSearchParams(location.search).get("id") ?? "";
+  const root = document.getElementById("pdp")!;
+
+  const ICON = (d: string) => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+  const I = {
+    truck: ICON(`<path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/>`),
+    clock: ICON(`<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>`),
+    store: ICON(`<path d="M4 9.5 5.5 4h13L20 9.5V20H4zM10 20v-5h4v5"/>`),
+    shield: ICON(`<path d="M12 3 5 6v5.5c0 4.4 3 8 7 9.5 4-1.5 7-5.1 7-9.5V6l-7-3z"/><path d="m9 12 2 2 4-4"/>`),
+    chat: ICON(`<path d="M20 11.5a8 8 0 0 1-11.7 7.1L4 20l1.4-4.1A8 8 0 1 1 20 11.5z"/>`),
+    share: ICON(`<circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="m8.2 10.8 7.6-4.1M8.2 13.2l7.6 4.1"/>`),
+    gift: ICON(`<path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7S10.5 3 8 3.8C6 4.5 7 7 9 7M12 7s1.5-4 4-3.2C18 4.5 17 7 15 7"/>`),
+  };
+
+  function setMeta(p: Product) {
+    document.title = `${p.name} | M&S Detalles`;
+    document.querySelector('meta[name="description"]')?.setAttribute("content", p.description || `${p.name} con delivery en Lima.`);
+    const crumb = document.getElementById("crumb-cat") as HTMLAnchorElement;
+    crumb.textContent = p.category;
+    crumb.href = `/tienda?cat=${encodeURIComponent(p.category)}`;
+  }
+
+  async function render() {
+    let p: Product | undefined;
+    try {
+      await loadCatalog();
+      p = getProduct(id);
+    } catch (err) {
+      root.innerHTML = `<div class="empty"><p>${esc(err instanceof Error ? err.message : "No pudimos cargar el producto.")}</p><a class="btn btn--white" href="">Reintentar</a></div>`;
+      root.removeAttribute("aria-busy");
+      return;
+    }
+    if (!p) {
+      root.hidden = true;
+      document.getElementById("pdp-missing")!.hidden = false;
+      return;
+    }
+    setMeta(p);
+    const { store } = await getConfig();
+    const canBuy = canBuyOnline() && p.inStock;
+    const images = p.images.length ? p.images : ["/logo-completo.png"];
+    const url = location.href;
+    const advance =
+      p.requiresAdvance && p.advanceValue
+        ? p.advanceType === "percent"
+          ? `Adelanto del ${p.advanceValue}% al confirmar el pedido`
+          : `Adelanto de ${soles(p.advanceValue)} al confirmar el pedido`
+        : "";
+    const delivery = [
+      store.deliveryTypes.includes("delivery_own") ? "Delivery a domicilio" : "",
+      store.deliveryTypes.includes("pickup") ? "Recojo en tienda" : "",
+    ].filter(Boolean).join(" · ");
+    const franjas = store.deliveryFranjas.map(franjaLabel);
+
+    root.innerHTML = `
+      <div class="pdp__gallery">
+        <div class="pdp__main">
+          <img id="pdp-img" src="${esc(images[0])}" alt="${esc(p.name)}" />
+          ${favButton(p, " fav-btn--lg")}
+          ${!p.inStock ? `<span class="badge badge--out pdp__flag">Agotado</span>` : ""}
+        </div>
+        ${
+          images.length > 1
+            ? `<div class="pdp__thumbs" role="tablist" aria-label="Fotos">${images
+                .map((src, i) => `<button role="tab" aria-selected="${i === 0}" data-img="${esc(src)}" aria-label="Foto ${i + 1}"><img src="${esc(src)}" alt="" /></button>`)
+                .join("")}</div>`
+            : ""
+        }
+      </div>
+
+      <div class="pdp__info">
+        <span class="eyebrow eyebrow--line">${esc(p.category)}</span>
+        <h1 class="title pdp__title">${esc(p.name)}</h1>
+        <p class="pdp__price" id="pdp-price">${priceLabel(p)}</p>
+        ${p.description ? `<p class="pdp__desc">${esc(p.description)}</p>` : ""}
+
+        ${
+          p.variants.length
+            ? `<fieldset class="variants"><legend>Elige una opción</legend>${p.variants
+                .map((v, i) => `<label><input type="radio" name="variant" value="${esc(v.name)}" ${i === 0 ? "checked" : ""}/><span>${esc(v.name)}<small>${soles(v.price)}</small></span></label>`)
+                .join("")}</fieldset>`
+            : ""
+        }
+
+        ${
+          canBuy
+            ? `<div class="pdp__buy">
+                 <div class="qty"><button data-q="-1" aria-label="Menos">−</button><input id="pdp-qty" type="number" min="1" max="99" value="1" inputmode="numeric" aria-label="Cantidad"/><button data-q="1" aria-label="Más">+</button></div>
+                 <button class="btn btn--primary btn--lg" id="pdp-add">Agregar al carrito</button>
+               </div>`
+            : ""
+        }
+        <div class="pdp__secondary">
+          <a class="btn btn--ghost" id="pdp-wa" target="_blank" rel="noopener" href="${waLink(`¡Hola! Me interesa "${p.name}" 🌸\n${url}`)}">${I.chat} ${canBuy ? "Consultar por WhatsApp" : p.inStock ? "Pedir por WhatsApp" : "Agotado · Consultar por WhatsApp"}</a>
+          <button class="btn btn--ghost" id="pdp-share">${I.share} Compartir</button>
+        </div>
+
+        <ul class="pdp__facts">
+          ${delivery ? `<li>${I.truck}<div><strong>${delivery}</strong><span>En Lima. Eliges la dirección al pagar.</span></div></li>` : ""}
+          ${franjas.length ? `<li>${I.clock}<div><strong>Horarios de entrega: ${franjas.join(" · ")}</strong><span>${p.preparationDays > 0 ? `${prepLabel(p.preparationDays)}. ` : ""}La fecha y la franja se eligen al pagar.</span></div></li>` : ""}
+          ${p.pricingMode === "quoted" ? `<li>${I.gift}<div><strong>Precio referencial</strong><span>El monto final se coordina según el diseño.</span></div></li>` : ""}
+          <li>${I.shield}<div><strong>Pago seguro</strong><span>${advance ? `${advance}. ` : ""}Yape, Plin o transferencia en una ventana segura.</span></div></li>
+        </ul>
+      </div>`;
+    root.removeAttribute("aria-busy");
+
+    // Galería
+    const main = document.getElementById("pdp-img") as HTMLImageElement;
+    root.querySelectorAll<HTMLButtonElement>("[data-img]").forEach((b) =>
+      b.addEventListener("click", () => {
+        main.src = b.dataset.img!;
+        root.querySelectorAll("[data-img]").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+      }),
+    );
+
+    // Cantidad y variantes
+    const qty = document.getElementById("pdp-qty") as HTMLInputElement | null;
+    root.querySelectorAll<HTMLButtonElement>("[data-q]").forEach((b) =>
+      b.addEventListener("click", () => {
+        qty!.value = String(Math.min(99, Math.max(1, Number(qty!.value) + Number(b.dataset.q))));
+      }),
+    );
+    const selectedVariant = () => root.querySelector<HTMLInputElement>('input[name="variant"]:checked')?.value;
+    const currentPrice = () => p!.variants.find((v) => v.name === selectedVariant())?.price ?? p!.price;
+    const priceEl = document.getElementById("pdp-price")!;
+    const updatePrice = () => {
+      if (p!.variants.length) priceEl.textContent = soles(currentPrice());
+      document.getElementById("buybar-price")!.textContent = p!.variants.length ? soles(currentPrice()) : priceLabel(p!);
+    };
+    root.querySelectorAll('input[name="variant"]').forEach((r) => r.addEventListener("change", updatePrice));
+
+    const add = () => {
+      if (addToCart(p!, selectedVariant(), Math.max(1, Number(qty?.value) || 1))) openCart();
+    };
+    document.getElementById("pdp-add")?.addEventListener("click", add);
+
+    // Compartir
+    document.getElementById("pdp-share")!.addEventListener("click", async () => {
+      const data = { title: p!.name, text: `Mira este arreglo de M&S Detalles: ${p!.name}`, url };
+      try {
+        if (navigator.share) return await navigator.share(data);
+        await navigator.clipboard.writeText(url);
+        toast("Link copiado. ¡Ya puedes compartirlo!");
+      } catch {
+        /* el usuario canceló */
+      }
+    });
+
+    // Barra fija en celular cuando el botón principal no se ve
+    const bar = document.getElementById("buybar")!;
+    if (canBuy) {
+      document.getElementById("buybar-name")!.textContent = p.name;
+      updatePrice();
+      document.getElementById("buybar-btn")!.addEventListener("click", add);
+      const target = document.getElementById("pdp-add")!;
+      // se descuenta la cabecera fija: si el botón queda debajo de ella, ya no se ve
+      const headerH = Math.round(document.querySelector(".header")!.getBoundingClientRect().height);
+      new IntersectionObserver(([e]) => (bar.hidden = e.isIntersecting || e.boundingClientRect.top > 0), {
+        threshold: 0,
+        rootMargin: `-${headerH}px 0px 0px 0px`,
+      }).observe(target);
+    }
+
+    // Complementos (no se ofrecen en la página de un complemento)
+    if (!isComplement(p) && canBuyOnline()) {
+      const extras = availableComplements(8);
+      if (extras.length) {
+        document.getElementById("complements-list")!.innerHTML = extras.map(miniCard).join("");
+        document.getElementById("pdp-complements")!.hidden = false;
+      }
+    }
+
+    // Relacionados: misma categoría primero, luego el resto
+    const { products } = await loadCatalog();
+    const others = products.filter((x) => x.id !== p!.id && !isComplement(x) && x.inStock);
+    const related = [...others.filter((x) => x.category === p!.category), ...others.filter((x) => x.category !== p!.category)].slice(0, 8);
+    if (related.length) {
+      renderProducts(document.getElementById("related")!, related);
+      document.getElementById("pdp-related")!.hidden = false;
+    }
+  }
+
+  render();
+  document.addEventListener("catalog:refresh", render);
+</script>

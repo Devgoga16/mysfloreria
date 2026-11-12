@@ -2,6 +2,8 @@
 import Base from "../layouts/Base.astro";
 import { Image } from "astro:assets";
 import Icon from "../components/Icon.astro";
+import PromoCarousel from "../components/PromoCarousel.astro";
+import { categoryBanners, withEm } from "../data/banners";
 import { site, waLink, unsplash as u } from "../data/site";
 
 // Ocasiones: enlazan a la tienda filtrada
@@ -83,6 +85,9 @@ const galeriaEjemplo = [
     </div>
   </section>
 
+  <!-- ================= PROMOCIONES (editar en src/data/banners.ts) ================= -->
+  <PromoCarousel />
+
   <!-- ================= OCASIONES ================= -->
   <section class="section container section--flush-top" id="ocasiones">
     <div class="section-head reveal">
@@ -104,6 +109,21 @@ const galeriaEjemplo = [
     </ul>
   </section>
 
+  <!-- ================= BANNERS POR CATEGORÍA ================= -->
+  <section class="container catbanners">
+    {categoryBanners.map((b, i) => (
+      <a class={`catbanner reveal reveal--d${i + 1}`} href={b.href}>
+        <Image src={b.image} alt="" width={800} loading="lazy" decoding="async" />
+        <div class="catbanner__copy">
+          <span class="eyebrow">{b.eyebrow}</span>
+          <h3 set:html={withEm(b.title)} />
+          <p>{b.text}</p>
+          <span class="catbanner__cta">{b.cta} <Icon name="arrow" /></span>
+        </div>
+      </a>
+    ))}
+  </section>
+
   <!-- ================= DESTACADOS (desde uTracker) ================= -->
   <section class="container" id="catalogo">
     <div class="featured reveal">
@@ -120,6 +140,18 @@ const galeriaEjemplo = [
       </div>
       <div class="catalog__track" id="destacados"></div>
     </div>
+  </section>
+
+  <!-- ================= COMPLEMENTOS (desde uTracker) ================= -->
+  <section class="container extras" id="complementos" hidden>
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow eyebrow--line">Súmale un detalle</span>
+        <h2 class="title">Complementa tu <em>regalo</em></h2>
+      </div>
+      <a href="/tienda?cat=Complementos" class="link">Ver complementos <Icon name="arrow" /></a>
+    </div>
+    <ul class="minis minis--row" id="extras-list"></ul>
   </section>
 
   <!-- ================= CÓMO COMPRAR ================= -->
@@ -216,7 +248,8 @@ const galeriaEjemplo = [
 </Base>
 
 <script>
-  import { loadCatalog, renderProducts, renderSkeleton, renderError } from "../lib/shop";
+  import { loadCatalog, renderProducts, renderSkeleton, renderError, availableComplements, miniCard } from "../lib/shop";
+  import { isComplement } from "../lib/utracker";
 
   const track = document.getElementById("destacados")!;
   async function load() {
@@ -224,8 +257,13 @@ const galeriaEjemplo = [
     try {
       const { products } = await loadCatalog();
       // Primero los disponibles; se muestran hasta 8.
-      const sorted = [...products].sort((a, b) => Number(b.inStock) - Number(a.inStock));
+      const sorted = products.filter((p) => !isComplement(p)).sort((a, b) => Number(b.inStock) - Number(a.inStock));
       renderProducts(track, sorted.slice(0, 8));
+      const extras = availableComplements(10);
+      if (extras.length) {
+        document.getElementById("extras-list")!.innerHTML = extras.map(miniCard).join("");
+        document.getElementById("complementos")!.hidden = false;
+      }
     } catch (err) {
       renderError(track, err, load);
     }

@@ -1,0 +1,54 @@
+---
+// Plantilla de las páginas de ayuda: título, menú lateral y contenido.
+import Base from "./Base.astro";
+import Icon from "../components/Icon.astro";
+import { site, waLink } from "../data/site";
+
+interface Props {
+  title: string;
+  heading: string;
+  intro: string;
+  description?: string;
+  updated?: string;
+}
+const { title, heading, intro, description, updated } = Astro.props;
+
+const helpPages = [
+  { href: "/ayuda/preguntas-frecuentes", label: "Preguntas frecuentes" },
+  { href: "/ayuda/envios", label: "Envíos y entregas" },
+  { href: "/ayuda/terminos", label: "Términos y condiciones" },
+  { href: "/ayuda/privacidad", label: "Política de privacidad" },
+];
+const path = Astro.url.pathname.replace(/\/$/, "");
+---
+<Base title={`${title} | M&S Detalles`} description={description ?? intro}>
+  <section class="help-hero">
+    <div class="container">
+      <nav class="crumbs" aria-label="Ruta"><a href="/">Inicio</a><span>/</span><span>Ayuda</span></nav>
+      <span class="eyebrow eyebrow--line">Centro de ayuda</span>
+      <h1 class="display" set:html={heading} />
+      <p class="lead">{intro}</p>
+    </div>
+  </section>
+
+  <div class="container help">
+    <aside class="help__nav">
+      <nav aria-label="Páginas de ayuda">
+        <ul>
+          {helpPages.map((p) => (
+            <li><a href={p.href} aria-current={path === p.href ? "page" : undefined}>{p.label}</a></li>
+          ))}
+        </ul>
+      </nav>
+      <div class="help__contact">
+        <strong class="serif">¿No encuentras tu respuesta?</strong>
+        <p>Escríbenos por WhatsApp. Atendemos {site.horario.replace("Lun a Dom: ", "todos los días de ")}.</p>
+        <a class="btn btn--primary btn--block" href={waLink("¡Hola! Tengo una consulta 🌸")} target="_blank" rel="noopener"><Icon name="chat" /> WhatsApp {site.celular}</a>
+      </div>
+    </aside>
+    <article class="help__body prose">
+      <slot />
+      {updated && <p class="help__updated">Última actualización: {updated}</p>}
+    </article>
+  </div>
+</Base>

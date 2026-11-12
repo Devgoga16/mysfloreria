@@ -1,0 +1,38 @@
+---
+import Help from "../../layouts/Help.astro";
+import { site, waLink } from "../../data/site";
+---
+<Help
+  title="Términos y condiciones"
+  heading="Términos y <em>condiciones</em>"
+  intro="Las condiciones que aplican cuando compras en nuestra tienda en línea."
+  updated="noviembre de 2026"
+>
+  <h2>1. Quiénes somos</h2>
+  <p>Florería M&amp;S Detalles, con dirección en {site.direccion}, Lima, Perú. Puedes contactarnos por WhatsApp al {site.celular} o al correo <a href={`mailto:${site.correo}`}>{site.correo}</a>.</p>
+
+  <h2>2. Productos e imágenes</h2>
+  <p>Nuestros arreglos se elaboran a mano con flores naturales. Las fotografías son referenciales: algunas flores, tonos o materiales pueden variar según la disponibilidad de la temporada, manteniendo el estilo, el tamaño y el valor del arreglo.</p>
+
+  <h2>3. Precios</h2>
+  <p>Los precios se muestran en soles (S/). El costo de delivery se calcula según el distrito y se muestra antes de confirmar el pago. Los productos marcados como “precio referencial” se cotizan según el diseño final acordado.</p>
+
+  <h2>4. Pedidos y pagos</h2>
+  <ul>
+    <li>El pedido se registra al completar el pago en la ventana segura de pago.</li>
+    <li>Algunos productos requieren un adelanto para confirmar el pedido; el monto se informa antes de pagar.</li>
+    <li>Aceptamos los medios de pago indicados al momento de pagar.</li>
+  </ul>
+
+  <h2>5. Entregas</h2>
+  <p>Las condiciones de entrega se detallan en <a href="/ayuda/envios">Envíos y entregas</a>. El cliente es responsable de brindar una dirección y un teléfono de contacto correctos.</p>
+
+  <h2>6. Cambios y reclamos</h2>
+  <p>Por tratarse de productos perecibles, cualquier observación sobre el pedido debe comunicarse por WhatsApp al <a href={waLink("¡Hola! Tengo un reclamo sobre mi pedido")} target="_blank" rel="noopener">{site.celular}</a>, adjuntando una foto, para que podamos revisarla contigo.</p>
+
+  <h2>7. Libro de Reclamaciones</h2>
+  <p>Conforme al Código de Protección y Defensa del Consumidor (Ley N.° 29571), ponemos a tu disposición nuestro Libro de Reclamaciones.</p>
+
+  <h2>8. Cambios en estos términos</h2>
+  <p>Podemos actualizar estos términos. La versión vigente es la publicada en esta página.</p>
+</Help>

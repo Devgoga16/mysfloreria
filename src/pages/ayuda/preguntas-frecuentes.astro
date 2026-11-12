@@ -1,0 +1,88 @@
+---
+import Help from "../../layouts/Help.astro";
+import { site, waLink } from "../../data/site";
+
+// Preguntas frecuentes: edita, agrega o quita preguntas aquí.
+const grupos = [
+  {
+    titulo: "Pedidos",
+    preguntas: [
+      {
+        p: "¿Cómo hago un pedido?",
+        r: `Elige tu arreglo en la <a href="/tienda">tienda</a>, agrégalo al carrito y toca <strong>Ir a pagar</strong>. Se abrirá una ventana segura donde indicas tus datos, la fecha y el lugar de entrega, y adjuntas tu comprobante de pago.`,
+      },
+      {
+        p: "¿Puedo pedir un arreglo personalizado?",
+        r: `Sí. Escríbenos por <a href="${waLink("¡Hola! Quisiera un arreglo personalizado 🌷")}" target="_blank" rel="noopener">WhatsApp</a> con la ocasión, los colores que te gustan y tu presupuesto, y lo diseñamos contigo.`,
+      },
+      {
+        p: "¿Los arreglos son iguales a la foto?",
+        r: "Las fotos son referenciales. Trabajamos con flores naturales, por lo que algunas variedades o tonos pueden cambiar según la temporada, manteniendo el estilo y el tamaño del arreglo.",
+      },
+      {
+        p: "¿Puedo agregar chocolates, un peluche u otro detalle?",
+        r: `Sí. En cada producto y en el carrito verás la sección <strong>“Complementa tu regalo”</strong>. Los complementos se entregan junto con tu arreglo.`,
+      },
+      {
+        p: "¿Puedo incluir un mensaje o dedicatoria?",
+        r: `Sí, coordínalo con nosotros por <a href="${waLink("¡Hola! Quiero agregar una dedicatoria a mi pedido 💌")}" target="_blank" rel="noopener">WhatsApp</a> indicando tu nombre y el mensaje.`,
+      },
+    ],
+  },
+  {
+    titulo: "Pagos",
+    preguntas: [
+      {
+        p: "¿Qué medios de pago aceptan?",
+        r: "Yape, Plin y transferencia bancaria. El pago se hace en una ventana segura al finalizar tu pedido.",
+      },
+      {
+        p: "¿Tengo que pagar todo por adelantado?",
+        r: "Algunos arreglos se confirman con un adelanto. Si es así, lo verás en la página del producto y antes de pagar, junto con el monto exacto.",
+      },
+      {
+        p: "¿Por qué algunos productos dicen “Precio referencial”?",
+        r: "Son arreglos que se preparan por encargo. El precio final se coordina contigo según el diseño y los materiales.",
+      },
+    ],
+  },
+  {
+    titulo: "Entregas",
+    preguntas: [
+      {
+        p: "¿A qué distritos llegan?",
+        r: `Hacemos delivery a domicilio en Lima. Si tienes dudas sobre tu distrito, <a href="${waLink("¡Hola! ¿Hacen delivery a mi distrito? 🚚")}" target="_blank" rel="noopener">consúltanos por WhatsApp</a>. Más detalles en <a href="/ayuda/envios">Envíos y entregas</a>.`,
+      },
+      {
+        p: "¿Puedo elegir el día y la hora de entrega?",
+        r: "Sí. Al pagar eliges la fecha y la franja horaria. Algunos arreglos necesitan días de preparación; si es así, lo verás indicado en el producto.",
+      },
+      {
+        p: "¿Puedo recoger mi pedido en la tienda?",
+        r: `Sí. Al pagar elige <strong>recojo en tienda</strong>. Estamos en ${site.direccion}.`,
+      },
+      {
+        p: "¿Cómo sé el estado de mi pedido?",
+        r: "Al terminar tu compra recibes un enlace de seguimiento. También puedes escribirnos por WhatsApp con tu nombre en cualquier momento.",
+      },
+    ],
+  },
+];
+---
+<Help
+  title="Preguntas frecuentes"
+  heading="Preguntas <em>frecuentes</em>"
+  intro="Todo lo que necesitas saber para hacer tu pedido con tranquilidad."
+>
+  {grupos.map((g) => (
+    <section class="faq">
+      <h2>{g.titulo}</h2>
+      {g.preguntas.map((q) => (
+        <details>
+          <summary>{q.p}</summary>
+          <div set:html={q.r} />
+        </details>
+      ))}
+    </section>
+  ))}
+</Help>
