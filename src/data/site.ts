@@ -12,9 +12,9 @@ export const site = {
   direccion: "Av. Metropolitana 407, San Martín de Comas 15314",
   horario: "Lun a Dom: 7:30 a.m. – 11:30 p.m.",
   redes: {
-    instagram: "https://instagram.com/",
-    facebook: "https://facebook.com/",
-    tiktok: "https://tiktok.com/",
+    instagram: "https://www.instagram.com/floreria_mys_detalles/",
+    facebook: "https://www.facebook.com/profile.php?id=61596155381669",
+    tiktok: "https://www.tiktok.com/@mys_floreria",
   },
 };
 
