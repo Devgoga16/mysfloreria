@@ -1,0 +1,159 @@
+---
+// Libro de Reclamaciones virtual (Ley N.° 29571 y D.S. 011-2011-PCM y modificatorias).
+// IMPORTANTE: esta web es estática; el envío se hace por correo desde el dispositivo
+// del cliente y se genera una constancia para imprimir o guardar en PDF.
+// Antes de publicar, completa razonSocial y ruc en src/data/site.ts.
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import { site } from "../data/site";
+const razon = site.razonSocial || "Florería M&S Detalles";
+---
+<Base
+  title="Libro de Reclamaciones | M&S Detalles"
+  description="Libro de Reclamaciones virtual de Florería M&S Detalles, conforme al Código de Protección y Defensa del Consumidor."
+>
+  <section class="lr container">
+    <header class="lr__head">
+      <nav class="crumbs" aria-label="Ruta"><a href="/">Inicio</a><span>/</span><span>Libro de Reclamaciones</span></nav>
+      <span class="lr__badge"><Icon name="book" /> Libro de Reclamaciones</span>
+      <h1 class="display">Hoja de reclamación</h1>
+      <p class="lead">Conforme a lo establecido en el Código de Protección y Defensa del Consumidor, esta institución cuenta con un Libro de Reclamaciones a tu disposición.</p>
+    </header>
+
+    <form class="lr__form" id="lr" novalidate>
+      <div class="lr__meta">
+        <div><span>Hoja N.°</span><strong id="lr-num">—</strong></div>
+        <div><span>Fecha</span><strong id="lr-date">—</strong></div>
+        <div><span>Proveedor</span><strong>{razon}</strong></div>
+        <div><span>RUC</span><strong>{site.ruc || "—"}</strong></div>
+        <div class="lr__meta-wide"><span>Dirección</span><strong>{site.direccion}, Lima</strong></div>
+      </div>
+
+      <fieldset class="lr__block">
+        <legend>1. Identificación del consumidor reclamante</legend>
+        <div class="bfields">
+          <label class="bfield bfield--full"><span>Nombres y apellidos *</span><input name="nombre" required autocomplete="name" /></label>
+          <label class="bfield"><span>Tipo de documento *</span>
+            <select name="doc_tipo" required><option>DNI</option><option>Carné de extranjería</option><option>Pasaporte</option></select>
+          </label>
+          <label class="bfield"><span>N.° de documento *</span><input name="doc" required inputmode="numeric" maxlength="15" /></label>
+          <label class="bfield bfield--full"><span>Domicilio *</span><input name="domicilio" required autocomplete="street-address" /></label>
+          <label class="bfield"><span>Teléfono *</span><input name="telefono" required type="tel" autocomplete="tel" /></label>
+          <label class="bfield"><span>Correo electrónico *</span><input name="email" required type="email" autocomplete="email" /></label>
+          <label class="bcheck bfield--full"><input type="checkbox" name="menor" id="menor" /> <span>Soy menor de edad</span></label>
+          <label class="bfield bfield--full" id="apoderado" hidden><span>Nombre del padre, madre o apoderado *</span><input name="apoderado" /></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="lr__block">
+        <legend>2. Identificación del bien contratado</legend>
+        <div class="bfields">
+          <div class="bradios bfield--full">
+            <label class="bcheck"><input type="radio" name="bien" value="Producto" checked /> <span>Producto</span></label>
+            <label class="bcheck"><input type="radio" name="bien" value="Servicio" /> <span>Servicio</span></label>
+          </div>
+          <label class="bfield"><span>Monto reclamado (S/)</span><input name="monto" type="number" min="0" step="0.01" inputmode="decimal" /></label>
+          <label class="bfield"><span>N.° de pedido (si lo tienes)</span><input name="pedido_n" /></label>
+          <label class="bfield bfield--full"><span>Descripción *</span><input name="descripcion" required placeholder="Ej.: Ramo de 24 rosas rojas entregado el 12 de diciembre" /></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="lr__block">
+        <legend>3. Detalle de la reclamación y pedido del consumidor</legend>
+        <div class="bfields">
+          <div class="bradios bfield--full">
+            <label class="bcheck"><input type="radio" name="tipo" value="Reclamo" checked /> <span><b>Reclamo:</b> disconformidad relacionada a los productos o servicios.</span></label>
+            <label class="bcheck"><input type="radio" name="tipo" value="Queja" /> <span><b>Queja:</b> disconformidad no relacionada a los productos o servicios, o malestar respecto a la atención al público.</span></label>
+          </div>
+          <label class="bfield bfield--full"><span>Detalle *</span><textarea name="detalle" required rows="4" maxlength="1500"></textarea></label>
+          <label class="bfield bfield--full"><span>Pedido *</span><textarea name="pedido" required rows="3" maxlength="800" placeholder="¿Qué solución esperas?"></textarea></label>
+        </div>
+      </fieldset>
+
+      <div class="lr__legal">
+        <p>La formulación del reclamo no impide acudir a otras vías de solución de controversias ni es requisito previo para interponer una denuncia ante el INDECOPI.</p>
+        <p>El proveedor deberá dar respuesta al reclamo o queja en un plazo no mayor a quince (15) días hábiles.</p>
+        <label class="bcheck"><input type="checkbox" name="acepto" required /> <span>Declaro que los datos consignados son correctos y acepto el tratamiento de mis datos para atender este reclamo, según la <a href="/ayuda/privacidad">política de privacidad</a>.</span></label>
+      </div>
+
+      <p class="lr__error" id="lr-error" role="alert" hidden></p>
+      <div class="lr__actions">
+        <button class="btn btn--primary btn--lg" type="submit"><Icon name="mail" /> Enviar reclamación</button>
+      </div>
+    </form>
+
+    <div class="lr__done" id="lr-done" hidden tabindex="-1">
+      <h2 class="title">Tu reclamación está lista</h2>
+      <p>Se abrió tu aplicación de correo con la hoja completa, dirigida a <strong>{site.correo}</strong> y con copia para ti. <strong>Toca «Enviar» en tu correo</strong> para registrarla. Si no se abrió, usa el botón de abajo.</p>
+      <div class="lr__actions">
+        <a class="btn btn--primary" id="lr-mail" href="#"><Icon name="mail" /> Abrir el correo de nuevo</a>
+        <button class="btn btn--outline" type="button" id="lr-print">Imprimir o guardar en PDF</button>
+      </div>
+      <pre class="lr__copy" id="lr-copy"></pre>
+    </div>
+  </section>
+</Base>
+
+<script define:vars={{ correo: site.correo, razon, ruc: site.ruc || "—", direccion: site.direccion }}>
+  const form = document.getElementById("lr");
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const num = `LR-${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  const fecha = now.toLocaleString("es-PE", { dateStyle: "long", timeStyle: "short" });
+  document.getElementById("lr-num").textContent = num;
+  document.getElementById("lr-date").textContent = fecha;
+
+  const menor = document.getElementById("menor");
+  const apod = document.getElementById("apoderado");
+  menor.addEventListener("change", () => {
+    apod.hidden = !menor.checked;
+    apod.querySelector("input").required = menor.checked;
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const err = document.getElementById("lr-error");
+    const bad = [...form.querySelectorAll("[required]")].find((el) => !el.checkValidity());
+    if (bad) {
+      err.textContent = bad.name === "acepto" ? "Marca la declaración para continuar." : "Completa los campos marcados con * (revisa también el correo).";
+      err.hidden = false;
+      bad.focus();
+      return;
+    }
+    err.hidden = true;
+    const d = Object.fromEntries(new FormData(form));
+    const texto = [
+      `LIBRO DE RECLAMACIONES — HOJA ${num}`,
+      `Fecha: ${fecha}`,
+      `Proveedor: ${razon} · RUC ${ruc} · ${direccion}`,
+      "",
+      "1. CONSUMIDOR",
+      `Nombre: ${d.nombre}`,
+      `${d.doc_tipo}: ${d.doc}`,
+      `Domicilio: ${d.domicilio}`,
+      `Teléfono: ${d.telefono} · Correo: ${d.email}`,
+      d.menor ? `Menor de edad. Padre/madre/apoderado: ${d.apoderado}` : "",
+      "",
+      "2. BIEN CONTRATADO",
+      `Tipo: ${d.bien}${d.monto ? ` · Monto reclamado: S/ ${d.monto}` : ""}${d.pedido_n ? ` · Pedido N.° ${d.pedido_n}` : ""}`,
+      `Descripción: ${d.descripcion}`,
+      "",
+      `3. ${String(d.tipo).toUpperCase()}`,
+      `Detalle: ${d.detalle}`,
+      `Pedido del consumidor: ${d.pedido}`,
+      "",
+      "La formulación del reclamo no impide acudir a otras vías de solución de controversias ni es requisito previo para interponer una denuncia ante el INDECOPI. El proveedor deberá dar respuesta en un plazo no mayor a quince (15) días hábiles.",
+    ].filter((l) => l !== null).join("\n");
+
+    const mailto = `mailto:${correo}?cc=${encodeURIComponent(d.email)}&subject=${encodeURIComponent(`Libro de Reclamaciones ${num} — ${d.tipo}`)}&body=${encodeURIComponent(texto)}`;
+    document.getElementById("lr-copy").textContent = texto;
+    document.getElementById("lr-mail").href = mailto;
+    form.hidden = true;
+    const done = document.getElementById("lr-done");
+    done.hidden = false;
+    done.focus();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    location.href = mailto;
+  });
+  document.getElementById("lr-print").addEventListener("click", () => window.print());
+</script>

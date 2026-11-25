@@ -1,0 +1,294 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import { FLORES, COLORES, TAMANOS, PRESENTACIONES, PAPELES, DETALLES, RAMO_INICIAL, dibujarRamo } from "../lib/ramo";
+import { waLink } from "../data/site";
+const inicial = RAMO_INICIAL;
+---
+<Base
+  title="Arma tu ramo | M&S Detalles"
+  description="Elige las flores, el color, el tamaño y la presentación, y mira cómo queda tu ramo. Te lo preparamos a mano en Comas, con delivery en Lima."
+>
+  <section class="builder container">
+    <header class="builder__head">
+      <nav class="crumbs" aria-label="Ruta"><a href="/">Inicio</a><span>/</span><span>Arma tu ramo</span></nav>
+      <h1 class="display">Arma tu ramo</h1>
+      <p class="lead">Elige cada detalle y mira cómo va quedando. Al final nos lo envías por WhatsApp y te confirmamos el precio y la entrega.</p>
+    </header>
+
+    <div class="builder__grid">
+      <form class="builder__form" id="builder" novalidate>
+        <fieldset class="bstep">
+          <legend><span class="bstep__n">1</span> ¿Qué flores?</legend>
+          <div class="bopts">
+            {FLORES.map((f) => (
+              <label class="bopt"><input type="radio" name="flor" value={f.id} checked={f.id === inicial.flor} /><span>{f.label}</span></label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset class="bstep" id="step-color">
+          <legend><span class="bstep__n">2</span> ¿De qué color?</legend>
+          <div class="bopts">
+            {COLORES.map((c) => (
+              <label class="bopt bopt--swatch">
+                <input type="radio" name="color" value={c.id} checked={c.id === inicial.color} />
+                <span><i style={c.hex ? `background:${c.hex}` : undefined} class={c.hex ? "" : "is-mix"}></i>{c.label}</span>
+              </label>
+            ))}
+          </div>
+          <p class="bstep__note" id="color-note" hidden>Los girasoles son amarillos, así que este paso no aplica.</p>
+        </fieldset>
+
+        <fieldset class="bstep">
+          <legend><span class="bstep__n">3</span> Tamaño</legend>
+          <div class="bopts bopts--4">
+            {TAMANOS.map((t) => (
+              <label class="bopt bopt--stack"><input type="radio" name="tamano" value={t.id} checked={t.id === inicial.tamano} /><span><b>{t.label}</b><small>{t.detalle}</small></span></label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset class="bstep">
+          <legend><span class="bstep__n">4</span> Presentación</legend>
+          <div class="bopts bopts--4">
+            {PRESENTACIONES.map((p) => (
+              <label class="bopt"><input type="radio" name="presentacion" value={p.id} checked={p.id === inicial.presentacion} /><span>{p.label}</span></label>
+            ))}
+          </div>
+          <div class="bsub" id="step-papel">
+            <span class="bsub__label" id="papel-label">Color del papel</span>
+            <div class="bopts bopts--4" role="radiogroup" aria-labelledby="papel-label">
+              {PAPELES.map((p) => (
+                <label class="bopt bopt--swatch"><input type="radio" name="papel" value={p.id} checked={p.id === inicial.papel} /><span><i style={`background:${p.hex}`}></i>{p.label}</span></label>
+              ))}
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="bstep">
+          <legend><span class="bstep__n">5</span> Súmale un detalle <small>(opcional)</small></legend>
+          <div class="bopts bopts--4">
+            {DETALLES.map((d) => (
+              <label class="bopt bopt--check"><input type="checkbox" name="detalles" value={d.id} /><span><Icon name="check" /> {d.label}</span></label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset class="bstep">
+          <legend><span class="bstep__n">6</span> Tarjeta y entrega</legend>
+          <div class="bfields">
+            <label class="bfield bfield--full">
+              <span>Mensaje de la tarjeta <small id="msg-count">0/180</small></span>
+              <textarea name="tarjeta" maxlength="180" rows="3" placeholder="Ej.: Feliz cumpleaños, mamá. Te quiero mucho."></textarea>
+            </label>
+            <label class="bfield"><span>¿Para quién es?</span><input name="para" type="text" maxlength="60" autocomplete="off" placeholder="Nombre de quien recibe" /></label>
+            <label class="bfield"><span>Fecha de entrega *</span><input name="fecha" type="date" required /></label>
+            <label class="bfield bfield--full"><span>Distrito de entrega *</span><input name="distrito" type="text" maxlength="60" required autocomplete="address-level2" placeholder="Ej.: Comas, Los Olivos, Independencia…" /></label>
+            <label class="bcheck bfield--full"><input type="checkbox" name="recojo" /> <span>Prefiero recogerlo en la tienda (Av. Metropolitana 407, Comas)</span></label>
+          </div>
+        </fieldset>
+      </form>
+
+      <div class="builder__side">
+        <div class="builder__visual">
+          <div class="builder__stage" id="stage" set:html={dibujarRamo(inicial)} />
+          <div class="builder__card" id="card-preview" hidden>
+            <span class="builder__card-logo">M&amp;S</span>
+            <p id="card-text"></p>
+            <span class="builder__card-to" id="card-to"></span>
+          </div>
+          <div class="builder__tools">
+            <button type="button" class="builder__tool" id="share"><Icon name="share" /> Compartir</button>
+            <button type="button" class="builder__tool" id="reset">Empezar de nuevo</button>
+          </div>
+        </div>
+        <div class="builder__summary">
+          <h2 class="builder__sumtitle">Tu ramo</h2>
+          <dl class="builder__list" id="summary"></dl>
+          <p class="builder__price" id="price" hidden></p>
+          <p class="builder__error" id="send-error" role="alert" hidden></p>
+          <a class="btn btn--primary btn--lg btn--block" id="send" href={waLink()} target="_blank" rel="noopener"><Icon name="chat" /> Enviar mi ramo por WhatsApp</a>
+          <p class="builder__hint" id="hint">Te respondemos con el precio y la disponibilidad. No pagas nada todavía.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="builder__bar" id="bar">
+    <a class="btn btn--primary btn--block" id="send-bar" href={waLink()} target="_blank" rel="noopener"><Icon name="chat" /> Enviar por WhatsApp</a>
+  </div>
+</Base>
+
+<script>
+  import { dibujarRamo, mensajeRamo, precioEstimado, FLORES, COLORES, TAMANOS, PRESENTACIONES, PAPELES, DETALLES, RAMO_INICIAL, type Ramo } from "../lib/ramo";
+  import { waLink } from "../data/site";
+  import { track } from "../lib/analytics";
+  import { toast } from "../lib/shop";
+
+  const form = document.getElementById("builder") as HTMLFormElement;
+  const stage = document.getElementById("stage")!;
+  const summary = document.getElementById("summary")!;
+  const cardBox = document.getElementById("card-preview")!;
+  const send = [document.getElementById("send"), document.getElementById("send-bar")] as HTMLAnchorElement[];
+  const err = document.getElementById("send-error")!;
+  const fecha = form.elements.namedItem("fecha") as HTMLInputElement;
+  const distrito = form.elements.namedItem("distrito") as HTMLInputElement;
+  const recojo = form.elements.namedItem("recojo") as HTMLInputElement;
+  const KEY = "mys-ramo";
+
+  // No se puede elegir una fecha pasada
+  const hoy = new Date();
+  fecha.min = new Date(hoy.getTime() - hoy.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+
+  const field = (n: string) => form.elements.namedItem(n) as RadioNodeList | HTMLInputElement;
+  const val = (n: string) => field(n).value.trim();
+  const label = <T extends { id: string; label: string }>(list: readonly T[], id: string) => list.find((x) => x.id === id)?.label ?? "";
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+
+  // ---------- Estado: enlace compartido (?ramo=) o borrador guardado ----------
+  type Estado = Ramo & { tarjetaTxt?: string; para?: string; fecha?: string; distrito?: string; recojo?: boolean };
+  function setRadio(name: string, value?: string) {
+    if (!value) return;
+    const i = form.querySelector<HTMLInputElement>(`input[name="${name}"][value="${CSS.escape(value)}"]`);
+    if (i) i.checked = true;
+  }
+  function aplicar(e: Partial<Estado>) {
+    setRadio("flor", e.flor); setRadio("color", e.color); setRadio("tamano", e.tamano);
+    setRadio("presentacion", e.presentacion); setRadio("papel", e.papel);
+    form.querySelectorAll<HTMLInputElement>('input[name="detalles"]').forEach((i) => (i.checked = !!e.detalles?.includes(i.value)));
+    (field("tarjeta") as HTMLInputElement).value = e.tarjetaTxt ?? "";
+    (field("para") as HTMLInputElement).value = e.para ?? "";
+    fecha.value = e.fecha && e.fecha >= fecha.min ? e.fecha : "";
+    distrito.value = e.distrito ?? "";
+    recojo.checked = !!e.recojo;
+  }
+  try {
+    const q = new URLSearchParams(location.search).get("ramo");
+    const saved = q ? JSON.parse(atob(q)) : JSON.parse(localStorage.getItem(KEY) || "null");
+    if (saved) aplicar(saved);
+  } catch {}
+
+  function leer(): Ramo {
+    return {
+      flor: val("flor"),
+      color: val("color"),
+      tamano: val("tamano"),
+      presentacion: val("presentacion"),
+      papel: val("papel"),
+      detalles: [...form.querySelectorAll<HTMLInputElement>('input[name="detalles"]:checked')].map((i) => i.value),
+      tarjeta: !!val("tarjeta"),
+    };
+  }
+
+  let ultimo = "";
+  let flores = "";
+  function update() {
+    const ramo = leer();
+    const girasol = ramo.flor === "girasoles";
+    const conPapel = PRESENTACIONES.find((p) => p.id === ramo.presentacion)?.conColor;
+    document.getElementById("step-color")!.classList.toggle("is-off", girasol);
+    document.getElementById("color-note")!.hidden = !girasol;
+    document.getElementById("step-papel")!.hidden = !conPapel;
+    document.getElementById("papel-label")!.textContent = ramo.presentacion === "caja" ? "Color de la caja" : "Color del papel";
+    distrito.disabled = recojo.checked;
+    distrito.closest(".bfield")!.classList.toggle("is-off", recojo.checked);
+
+    // Se redibuja solo si cambió algo visible; las flores "florecen" si cambiaron
+    const key = JSON.stringify(ramo);
+    if (key !== ultimo) {
+      const nuevasFlores = `${ramo.flor}|${ramo.color}|${ramo.tamano}|${ramo.presentacion}`;
+      stage.innerHTML = dibujarRamo(ramo);
+      stage.classList.remove("is-bloom", "is-soft");
+      void stage.offsetWidth;
+      stage.classList.add(nuevasFlores !== flores ? "is-bloom" : "is-soft");
+      flores = nuevasFlores;
+      ultimo = key;
+    }
+
+    const tarjeta = val("tarjeta");
+    document.getElementById("msg-count")!.textContent = `${tarjeta.length}/180`;
+    cardBox.hidden = !tarjeta;
+    document.getElementById("card-text")!.textContent = tarjeta;
+    document.getElementById("card-to")!.textContent = val("para") ? `Para ${val("para")}` : "";
+
+    const t = TAMANOS.find((x) => x.id === ramo.tamano)!;
+    const fechaTxt = val("fecha")
+      ? new Date(val("fecha") + "T12:00").toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "long" })
+      : "";
+    const lugar = recojo.checked ? "Recojo en tienda" : val("distrito");
+    const rows: [string, string][] = [
+      ["Flores", label(FLORES, ramo.flor) + (girasol ? "" : ` · ${label(COLORES, ramo.color)}`)],
+      ["Tamaño", `${t.label} · ${t.detalle}`],
+      ["Presentación", label(PRESENTACIONES, ramo.presentacion) + (conPapel ? ` · ${label(PAPELES, ramo.papel)}` : "")],
+      ["Detalles", ramo.detalles.map((d) => label(DETALLES, d)).join(", ") || "Ninguno"],
+      ["Tarjeta", tarjeta ? "Con mensaje" : "Sin mensaje"],
+    ];
+    if (val("para")) rows.push(["Para", val("para")]);
+    rows.push(["Entrega", [fechaTxt || "Falta la fecha", lugar || "falta el distrito"].join(" · ")]);
+    summary.innerHTML = rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("");
+
+    const precio = precioEstimado(ramo);
+    const priceEl = document.getElementById("price")!;
+    priceEl.hidden = precio === null;
+    if (precio !== null) priceEl.innerHTML = `Precio estimado <strong>S/ ${precio}</strong>`;
+    document.getElementById("hint")!.textContent =
+      precio === null ? "Te respondemos con el precio y la disponibilidad. No pagas nada todavía." : "Es un estimado: te confirmamos el precio final por WhatsApp.";
+
+    const href = waLink(mensajeRamo(ramo, { para: val("para"), tarjeta, fecha: fechaTxt, distrito: lugar, precio }));
+    send.forEach((a) => (a.href = href));
+
+    // Borrador del visitante (solo en su navegador)
+    try {
+      const estado: Estado = { ...ramo, tarjetaTxt: tarjeta, para: val("para"), fecha: val("fecha"), distrito: val("distrito"), recojo: recojo.checked };
+      localStorage.setItem(KEY, JSON.stringify(estado));
+    } catch {}
+    if (!err.hidden && faltante() === null) err.hidden = true;
+  }
+
+  // ---------- Envío: pide fecha y distrito antes de abrir WhatsApp ----------
+  function faltante(): HTMLInputElement | null {
+    if (!fecha.value || fecha.value < fecha.min) return fecha;
+    if (!recojo.checked && !distrito.value.trim()) return distrito;
+    return null;
+  }
+  send.forEach((a) =>
+    a.addEventListener("click", (e) => {
+      const f = faltante();
+      if (f) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        err.textContent = f === fecha ? "Elige la fecha de entrega para enviar tu pedido." : "Escribe el distrito de entrega o marca recojo en tienda.";
+        err.hidden = false;
+        f.focus({ preventScroll: true });
+        f.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      track("arma_tu_ramo_enviado", { ...leer(), detalles: leer().detalles.join(",") });
+    }, { capture: true }),
+  );
+
+  // ---------- Compartir y reiniciar ----------
+  document.getElementById("share")!.addEventListener("click", async () => {
+    const r = leer();
+    const url = `${location.origin}${location.pathname}?ramo=${btoa(JSON.stringify(r))}`;
+    try {
+      if (navigator.share) await navigator.share({ title: "Mi ramo de M&S Detalles", url });
+      else { await navigator.clipboard.writeText(url); toast("Enlace copiado. Pégalo donde quieras."); }
+    } catch {}
+  });
+  document.getElementById("reset")!.addEventListener("click", () => {
+    aplicar({ ...RAMO_INICIAL, detalles: [] });
+    try { localStorage.removeItem(KEY); } catch {}
+    history.replaceState(null, "", location.pathname);
+    update();
+  });
+
+  form.addEventListener("input", update);
+  form.addEventListener("change", update);
+  update();
+
+  // Barra fija en celular: se oculta cuando el botón principal está a la vista
+  const bar = document.getElementById("bar")!;
+  new IntersectionObserver(([e]) => bar.classList.toggle("is-hidden", e.isIntersecting)).observe(send[0]);
+</script>

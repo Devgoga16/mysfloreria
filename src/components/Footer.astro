@@ -2,17 +2,8 @@
 import { site, waLink } from "../data/site";
 import Icon from "./Icon.astro";
 const year = new Date().getFullYear();
-const ocasiones = ["San Valentín", "Día de la Madre", "Aniversarios", "Cumpleaños", "Navidad", "Graduaciones"];
 ---
 <footer class="footer" id="contacto">
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee__inner">
-      {[0, 1].map(() => (
-        <span>{ocasiones.map((o) => <Fragment>{o}<b>✿</b></Fragment>)}</span>
-      ))}
-    </div>
-  </div>
-
   <div class="container footer__grid">
     <div class="footer__brand">
       <a href="/" class="footer__logo" aria-label="M&amp;S Detalles, inicio">
@@ -31,7 +22,8 @@ const ocasiones = ["San Valentín", "Día de la Madre", "Aniversarios", "Cumplea
       <ul class="footer__links">
         <li><a href="/tienda">Todos los arreglos</a></li>
         <li><a href="/#categorias">Tipos de arreglos</a></li>
-        <li><a href={waLink("¡Hola! Quisiera un arreglo personalizado 🌷")} target="_blank" rel="noopener">Pedido personalizado</a></li>
+        <li><a href="/arma-tu-ramo">Arma tu ramo</a></li>
+        <li><a href="/tienda?precio=0-100">Regalos hasta S/ 100</a></li>
       </ul>
     </div>
 
@@ -42,7 +34,7 @@ const ocasiones = ["San Valentín", "Día de la Madre", "Aniversarios", "Cumplea
         <li><a href="/ayuda/envios">Envíos y entregas</a></li>
         <li><a href="/ayuda/terminos">Términos y condiciones</a></li>
         <li><a href="/ayuda/privacidad">Política de privacidad</a></li>
-        <li><a href="#">Libro de Reclamaciones</a></li>
+        <li><a href="/libro-de-reclamaciones" class="footer__lr"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5v-15z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3M9 7.5h6M9 11h6"/></svg> Libro de Reclamaciones</a></li>
       </ul>
     </div>
 

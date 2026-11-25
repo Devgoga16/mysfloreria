@@ -28,6 +28,12 @@ import { waLink } from "../data/site";
         <input type="search" id="q" placeholder="Buscar rosas, girasoles, tulipanes…" aria-label="Buscar" />
       </label>
       <div class="shop__selects" id="filters"></div>
+      <select id="price" aria-label="Precio">
+        <option value="">Precio: todos</option>
+        <option value="0-100">Hasta S/ 100</option>
+        <option value="100-200">S/ 100 a S/ 200</option>
+        <option value="200-">Más de S/ 200</option>
+      </select>
       <select id="sort" aria-label="Ordenar">
         <option value="">Recomendados</option>
         <option value="asc">Menor precio</option>
@@ -52,6 +58,7 @@ import { waLink } from "../data/site";
   const grid = document.getElementById("grid")!;
   const q = document.getElementById("q") as HTMLInputElement;
   const sort = document.getElementById("sort") as HTMLSelectElement;
+  const price = document.getElementById("price") as HTMLSelectElement;
   const cats = document.getElementById("categories")!;
   const filtersEl = document.getElementById("filters")!;
   const count = document.getElementById("count")!;
@@ -72,6 +79,14 @@ import { waLink } from "../data/site";
   // ?cat=Rosas (barra de categorías), ?q=rosas (buscador de la cabecera)
   let category = params.get("cat") ?? "";
   if (params.get("q")) q.value = params.get("q")!;
+  // ?precio=0-100 (viene de "Regalos por presupuesto" del inicio)
+  if (params.get("precio")) price.value = params.get("precio")!;
+  const inRange = (p: Product) => {
+    if (!price.value) return true;
+    const [lo, hi] = price.value.split("-").map((n) => (n ? Number(n) : NaN));
+    const v = minPrice(p);
+    return (isNaN(lo) || v >= lo) && (isNaN(hi) || v < hi);
+  };
   const selected: Record<string, string> = {};
   // Viene de "Compra por ocasión": ?ocasion=Cumpleaños
   let pendingOcasion = params.get("ocasion") ?? "";
@@ -80,6 +95,7 @@ import { waLink } from "../data/site";
     const words = norm(q.value.trim()).split(/\s+/).filter(Boolean);
     let list = products.filter((p) => {
       if (category && p.category !== category) return false;
+      if (!inRange(p)) return false;
       // Los complementos solo aparecen en su categoría o al buscarlos
       if (!category && !words.length && isComplement(p)) return false;
       const hay = norm(`${p.name} ${p.description} ${p.category}`);
@@ -175,6 +191,7 @@ import { waLink } from "../data/site";
     category = "";
     q.value = "";
     sort.value = "";
+    price.value = "";
     Object.keys(selected).forEach((k) => (selected[k] = ""));
     filtersEl.querySelectorAll("select").forEach((s) => (s.value = ""));
     cats.querySelectorAll(".chip-btn").forEach((x, i) => x.classList.toggle("is-active", i === 0));
@@ -191,6 +208,12 @@ import { waLink } from "../data/site";
   });
   q.addEventListener("input", apply);
   sort.addEventListener("change", apply);
+  price.addEventListener("change", () => {
+    const u = new URL(location.href);
+    if (price.value) u.searchParams.set("precio", price.value); else u.searchParams.delete("precio");
+    history.replaceState(null, "", u);
+    apply();
+  });
   document.addEventListener("catalog:refresh", load);
 
   load();

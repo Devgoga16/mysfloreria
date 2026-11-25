@@ -3,9 +3,31 @@ import Base from "../layouts/Base.astro";
 import { Image } from "astro:assets";
 import Icon from "../components/Icon.astro";
 import PortadaCarousel from "../components/PortadaCarousel.astro";
+import Hero from "../components/Hero.astro";
 import Categorias from "../components/Categorias.astro";
-import { site, waLink, unsplash as u } from "../data/site";
-import fotoPersonalizado from "../assets/galeria/11.jpg";
+import { site, waLink, mapsDir, mapsEmbed, unsplash as u } from "../data/site";
+import { dibujarRamo } from "../lib/ramo";
+import { catUrl } from "../data/categorias";
+
+// "¿Qué celebras?": cada ocasión lleva a la categoría que mejor le queda
+const ocasiones = [
+  { nombre: "Cumpleaños", href: catUrl("Por ocasión") },
+  { nombre: "Aniversario", href: catUrl("Por ocasión") },
+  { nombre: "Graduación", href: catUrl("Eventos y ocasiones especiales") },
+  { nombre: "Día de la Madre", href: catUrl("Ramos de flores") },
+  { nombre: "San Valentín", href: catUrl("Box florales") },
+  { nombre: "Nacimiento", href: catUrl("Flores y regalos") },
+  { nombre: "Pedir perdón", href: catUrl("Ramos de flores") },
+  { nombre: "Condolencias", href: catUrl("Condolencias") },
+  { nombre: "Solo porque sí", href: "/tienda" },
+];
+
+// "Regalos por presupuesto": rangos de precio (se filtran en /tienda?precio=)
+const presupuestos = [
+  { rango: "0-100", antes: "Hasta", monto: "100", tono: "rosa" },
+  { rango: "100-200", antes: "De S/ 100 a", monto: "200", tono: "blanco" },
+  { rango: "200-", antes: "Más de", monto: "200", tono: "frambuesa" },
+];
 
 const pasos = [
   { titulo: "Elige tu arreglo", texto: "Escoge el diseño, el tamaño y agrega un detalle si quieres." },
@@ -48,8 +70,8 @@ const galeriaEjemplo = [
 ];
 ---
 <Base>
-  <!-- ================= PORTADAS (editar en src/data/banners.ts) ================= -->
-  <PortadaCarousel />
+  <!-- ================= PORTADA (foto y textos en src/components/Hero.astro) ================= -->
+  <Hero />
 
   <!-- ================= POR QUÉ M&S (franja bajo la portada) ================= -->
   <section class="container perks" id="nosotros" aria-labelledby="why-title">
@@ -65,8 +87,34 @@ const galeriaEjemplo = [
   <!-- ================= CATEGORÍAS (editar en src/data/categorias.ts) ================= -->
   <Categorias />
 
+  <!-- ================= REGALOS POR PRESUPUESTO ================= -->
+  <section class="container budget" aria-labelledby="budget-title">
+    <div class="split-head reveal">
+      <div>
+        <h2 class="title" id="budget-title">Regalos por presupuesto</h2>
+        <p class="muted">Dinos cuánto quieres gastar y te mostramos lo que tenemos.</p>
+      </div>
+    </div>
+    <ul class="budget__grid">
+      {presupuestos.map((b, i) => (
+        <li class={`reveal reveal--d${i + 1}`}>
+          <a class={`budget__card budget__card--${b.tono}`} href={`/tienda?precio=${b.rango}`} data-range={b.rango}>
+            <span class="budget__label">{b.antes}</span>
+            <span class="budget__amount"><span class="budget__cur">S/</span>{b.monto}</span>
+            <span class="budget__foot">
+              <span class="budget__thumbs" data-thumbs></span>
+              <span class="budget__count" data-count>Ver arreglos</span>
+              <Icon name="arrow" />
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
   <!-- ================= LOS MÁS PEDIDOS (desde uTracker) ================= -->
-  <section class="container section section--flush-top featured-sec" id="catalogo">
+  <section class="band-vino featured-sec" id="catalogo">
+    <div class="container">
     <div class="split-head reveal">
       <div>
         <h2 class="title">Los más pedidos</h2>
@@ -80,6 +128,7 @@ const galeriaEjemplo = [
     </div>
     <div class="tabs" role="tablist" aria-label="Filtrar por categoría" id="featured-tabs" hidden></div>
     <div class="catalog__track" id="destacados"></div>
+    </div>
   </section>
 
   <!-- ================= COMPLEMENTOS (desde uTracker) ================= -->
@@ -94,12 +143,30 @@ const galeriaEjemplo = [
     <ul class="minis minis--row" id="extras-list"></ul>
   </section>
 
+  <!-- ================= CAMPAÑAS (editar en src/data/banners.ts) ================= -->
+  <div class="container campanas-head reveal">
+    <h2 class="title">Campañas del momento</h2>
+  </div>
+  <PortadaCarousel />
+
+  <!-- ================= ¿QUÉ CELEBRAS? ================= -->
+  <section class="ocasiones" aria-labelledby="oc-title">
+    <div class="container ocasiones__inner">
+      <div class="ocasiones__head reveal">
+        <h2 class="title" id="oc-title">¿Qué celebras?</h2>
+        <p class="lead">Elige el momento y te mostramos los arreglos que mejor le quedan.</p>
+      </div>
+      <ul class="ocasiones__list reveal reveal--d1">
+        {ocasiones.map((o) => <li><a href={o.href}>{o.nombre}</a></li>)}
+      </ul>
+    </div>
+  </section>
+
   <!-- ================= COMPRAR ES FÁCIL (pasos + entregas) ================= -->
   <section class="easy" id="como-comprar">
     <div class="container easy__grid">
       <div class="easy__steps reveal">
-        <span class="eyebrow">Cómo comprar</span>
-        <h2 class="title">Regalar flores, <em>sin complicaciones</em></h2>
+        <h2 class="title">Así de fácil es regalar</h2>
         <ol>
           {pasos.map((p, i) => (
             <li>
@@ -118,23 +185,23 @@ const galeriaEjemplo = [
     </div>
   </section>
 
-  <!-- ================= PEDIDO PERSONALIZADO ================= -->
+  <!-- ================= ARMA TU RAMO (avance de la página /arma-tu-ramo) ================= -->
   <section class="section container" id="personalizado">
-    <div class="custom reveal">
+    <div class="custom builder-teaser reveal">
       <div class="custom__copy">
-        <span class="eyebrow eyebrow--line">Pedido personalizado</span>
-        <h2 class="title">¿Tienes una idea <em>en mente?</em></h2>
-        <p>Cuéntanos la ocasión, los colores que le gustan y tu presupuesto. Diseñamos el arreglo contigo, paso a paso.</p>
-        <a href={waLink("¡Hola! Quisiera diseñar un arreglo personalizado 🌷")} target="_blank" rel="noopener" class="btn btn--white btn--lg"><Icon name="chat" /> Escríbenos por WhatsApp</a>
+        <h2 class="title">Arma tu ramo</h2>
+        <p>Elige las flores, el color, el tamaño y la presentación, y mira cómo va quedando. Nos lo envías por WhatsApp y te confirmamos el precio.</p>
+        <div class="builder-teaser__actions">
+          <a href="/arma-tu-ramo" class="btn btn--primary btn--lg">Armar mi ramo <Icon name="arrow" /></a>
+          <a href={waLink("¡Hola! Quisiera diseñar un arreglo personalizado 🌷")} target="_blank" rel="noopener" class="link">¿Tienes otra idea? Escríbenos</a>
+        </div>
       </div>
-      <div class="custom__media">
-        <Image src={fotoPersonalizado} alt="Ramo personalizado de M&S Detalles" width={800} loading="lazy" decoding="async" />
-      </div>
+      <a href="/arma-tu-ramo" class="builder-teaser__art" aria-label="Armar mi ramo" set:html={dibujarRamo({ flor: "mixto", color: "mixto", tamano: "l", presentacion: "coreano", papel: "rosa", detalles: ["globo"], tarjeta: true }, "tz")} />
     </div>
   </section>
 
   <!-- ================= NUESTROS TRABAJOS (galería) ================= -->
-  <section class="section section--flush-top container">
+  <section class="section section--flush-top container trabajos">
     <div class="split-head reveal">
       <div>
         <h2 class="title">Nuestros trabajos</h2>
@@ -156,11 +223,33 @@ const galeriaEjemplo = [
           ))}
     </div>
   </section>
+
+  <!-- ================= VISÍTANOS ================= -->
+  <section class="section section--flush-top container visit" id="visitanos" aria-labelledby="visit-title">
+    <div class="visit__grid reveal">
+      <div class="visit__map">
+        <iframe src={mapsEmbed()} title="Mapa de M&amp;S Detalles en Av. Metropolitana 407, Comas" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+      <div class="visit__info">
+        <h2 class="title" id="visit-title">Visítanos en Comas</h2>
+        <p class="lead">Ven a ver los arreglos en persona, recoge tu pedido o arma uno con nosotros.</p>
+        <ul class="visit__list">
+          <li><Icon name="pin" /><div><strong>Dirección</strong><span>{site.direccion}</span></div></li>
+          <li><Icon name="clock" /><div><strong>Horario</strong><span>{site.horario}</span></div></li>
+          <li><Icon name="phone" /><div><strong>Teléfono y WhatsApp</strong><span>{site.celular}</span></div></li>
+        </ul>
+        <div class="visit__actions">
+          <a href={mapsDir()} target="_blank" rel="noopener" class="btn btn--primary"><Icon name="map" /> Cómo llegar</a>
+          <a href={`tel:+${site.whatsapp}`} class="btn btn--outline"><Icon name="phone" /> Llamar</a>
+        </div>
+      </div>
+    </div>
+  </section>
 </Base>
 
 <script>
   import { loadCatalog, renderProducts, renderSkeleton, renderError, availableComplements, miniCard, esc } from "../lib/shop";
-  import { isComplement, type Product } from "../lib/utracker";
+  import { isComplement, minPrice, type Product } from "../lib/utracker";
 
   const track = document.getElementById("destacados")!;
   const tabs = document.getElementById("featured-tabs")!;
@@ -186,6 +275,14 @@ const galeriaEjemplo = [
         .join("");
       tabs.hidden = cats.length === 0;
       show();
+      // Regalos por presupuesto: cantidad y fotos de cada rango
+      document.querySelectorAll<HTMLElement>("[data-range]").forEach((card) => {
+        const [lo, hi] = card.dataset.range!.split("-").map((n) => (n ? Number(n) : NaN));
+        const list = pool.filter((p) => { const v = minPrice(p); return (isNaN(lo) || v >= lo) && (isNaN(hi) || v < hi); });
+        card.querySelector("[data-count]")!.textContent = list.length ? `Ver ${list.length} ${list.length === 1 ? "arreglo" : "arreglos"}` : "Consúltanos";
+        card.querySelector("[data-thumbs]")!.innerHTML = list.filter((p) => p.images[0]).slice(0, 3)
+          .map((p) => `<img src="${esc(p.images[0])}" alt="" loading="lazy" decoding="async" />`).join("");
+      });
       const extras = availableComplements(10);
       if (extras.length) {
         document.getElementById("extras-list")!.innerHTML = extras.map(miniCard).join("");
