@@ -285,7 +285,7 @@ function cajaDelante(c: Ctx, color: string) {
     <path d="M104 262V378A96 22 0 0 0 296 378V262A96 20 0 0 1 104 262Z" fill="url(#${c.p}-box)"/>
     <path d="M104 262A96 20 0 0 0 296 262" fill="none" stroke="${tone(color, 1.25)}" stroke-width="3" stroke-opacity=".7"/>
     <path d="M104 300A96 20 0 0 0 296 300" fill="none" stroke="${oro}" stroke-width="1.2" opacity=".8"/>
-    <text x="200" y="345" text-anchor="middle" font-family="Bodoni Moda, Georgia, serif" font-size="26" fill="${oro}" letter-spacing="1">M&amp;S</text>
+    <text x="200" y="345" text-anchor="middle" font-family="Marcellus, Georgia, serif" font-size="26" fill="${oro}" letter-spacing="1">M&amp;S</text>
     <text x="200" y="362" text-anchor="middle" font-family="Figtree, sans-serif" font-size="7.5" letter-spacing="3" fill="${oro}">DETALLES</text>
     <defs><linearGradient id="${c.p}-box" x1="0" x2="1">
       <stop offset="0" stop-color="${tone(color, 0.7)}"/><stop offset=".3" stop-color="${tone(color, 1.08)}"/>
@@ -319,7 +319,7 @@ function detallesSvg(c: Ctx, d: string[]) {
       <path d="M-8 -62H8V-36C8 -30 18 -24 18 -10V58C18 62 15 64 11 64H-11C-15 64 -18 62 -18 58V-10C-18 -24 -8 -30 -8 -36Z" fill="url(#${c.p}-glass)"/>
       <path d="M-9 -66H9V-40H-9Z" fill="url(#${c.p}-gold)"/>
       <rect x="-18" y="2" width="36" height="30" fill="#f2e7cf"/><rect x="-18" y="2" width="36" height="4" fill="#a63e5f"/>
-      <text y="22" text-anchor="middle" font-family="Bodoni Moda, Georgia, serif" font-size="9" fill="#5b4a3a">Brut</text>
+      <text y="22" text-anchor="middle" font-family="Marcellus, Georgia, serif" font-size="9" fill="#5b4a3a">Brut</text>
       <path d="M-12 -6V54" stroke="#fff" stroke-opacity=".22" stroke-width="3"/></g>`;
   if (d.includes("chocolates"))
     out += `<g class="ex" transform="translate(326 392)">
@@ -441,7 +441,7 @@ export function dibujarRamo(r: Ramo, p = "rm") {
 
   // Tarjeta pinchada en el ramo
   const tarjeta = r.tarjeta
-    ? `<g class="ex" transform="translate(${f1(B.cx + B.rx * 0.55)} ${f1(B.cy - B.ry * 0.95)}) rotate(9)"><path d="M0 4V64" stroke="#7a9a6a" stroke-width="1.6"/><rect x="-19" y="-24" width="38" height="28" rx="2" fill="#fffdf8" stroke="#e2d8cb" stroke-width=".8"/><text y="-8" text-anchor="middle" font-family="Bodoni Moda, Georgia, serif" font-size="8.5" fill="#a63e5f">M&amp;S</text><path d="M-11 -2H11" stroke="#d8c9c3" stroke-width=".8"/></g>`
+    ? `<g class="ex" transform="translate(${f1(B.cx + B.rx * 0.55)} ${f1(B.cy - B.ry * 0.95)}) rotate(9)"><path d="M0 4V64" stroke="#7a9a6a" stroke-width="1.6"/><rect x="-19" y="-24" width="38" height="28" rx="2" fill="#fffdf8" stroke="#e2d8cb" stroke-width=".8"/><text y="-8" text-anchor="middle" font-family="Marcellus, Georgia, serif" font-size="8.5" fill="#a63e5f">M&amp;S</text><path d="M-11 -2H11" stroke="#d8c9c3" stroke-width=".8"/></g>`
     : "";
 
   // Presentación

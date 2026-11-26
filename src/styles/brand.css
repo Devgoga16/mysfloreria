@@ -5,7 +5,7 @@
    Paleta (4 colores + 1 verde de apoyo):
      Frambuesa #a63e5f · Rosa #fbdcd9 · Blanco humo #f0f2ef
      Salvia #789e7f · Verde hoja #5e8149 (solo íconos y WhatsApp)
-   Tipografía: Bodoni Moda + Figtree. Forma propia: el arco.
+   Tipografía: Marcellus (títulos) + Figtree (textos). Forma propia: el arco.
    ============================================================ */
 :root {
   --bg: #f0f2ef;            /* blanco humo: fondo de la página */
@@ -25,7 +25,7 @@
   --leaf: #5e8149;          /* verde hoja */
   --leaf-dark: #4b6a3a;
   --gold: var(--sage);
-  --serif: "Bodoni Moda", "Didot", Georgia, serif;
+  --serif: "Marcellus", Georgia, serif;
   --sans: "Figtree", system-ui, sans-serif;
   --arch: 999px 999px 22px 22px;
 }
@@ -238,3 +238,10 @@ body { line-height: 1.6; }
 .shop__bar, .shop__toolbar { background: rgba(240, 242, 239, .92); }
 .easy__icon { color: var(--leaf); }
 :focus-visible { outline-color: var(--rose); }
+
+/* Marcellus tiene un solo grosor: sin negritas ni cursivas falsas */
+.display, .title, .serif, .product h3, .cat__name, .hero2__title, .budget__amount,
+.ocasiones__list a, .bstep legend, .builder__sumtitle, .lr__block legend, .easy__num {
+  font-weight: 400; font-synthesis: none; letter-spacing: -.005em;
+}
+.ocasiones__list a { font-style: normal; }

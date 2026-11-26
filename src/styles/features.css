@@ -10,7 +10,7 @@
 }
 .hero2__title {
   font-family: var(--serif); font-weight: 500; font-size: clamp(2.5rem, 4.9vw, 4.3rem); line-height: 1.04;
-  letter-spacing: -.02em; color: var(--rose); max-width: 15ch; text-wrap: balance;
+  letter-spacing: -.02em; color: var(--rose); max-width: 17ch; text-wrap: balance;
 }
 .hero2__lead { font-size: clamp(1.02rem, 1.3vw, 1.15rem); color: var(--ink); max-width: 34rem; margin: 20px 0 28px; }
 .hero2__actions { display: flex; flex-wrap: wrap; gap: 12px; }
@@ -310,4 +310,9 @@
   .builder__card p { font-size: .76rem; max-height: 4em; }
   .builder__tools { margin-top: 2px; }
   .builder__tool { padding: 6px 12px; font-size: .8rem; }
+}
+
+/* Marcellus tiene un solo grosor (se repite aquí porque este archivo carga al final) */
+.hero2__title, .budget__amount, .bstep legend, .builder__sumtitle, .lr__block legend, .builder__card p, .builder__card-logo {
+  font-weight: 400; font-style: normal; font-synthesis: none; letter-spacing: -.005em;
 }
